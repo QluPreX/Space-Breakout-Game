@@ -137,7 +137,7 @@ def main():
                     if event.key == pygame.K_r:
                         scoreTemp +=1
                     if event.key == pygame.K_t:
-                        del(bricksRects[0])
+                        del(bricksRects[:])
                     if event.key == pygame.K_SPACE:
                         if not ballServed:
                             ballServed = True
@@ -266,12 +266,13 @@ def main():
         while changeLevel:
             #draw backgroud
             relatief_X = xBg % nextLevelSurface.get_rect().height
-            nextLevelSurface.blit(bg2,(relatief_X - nextLevelSurface.get_rect().width,0))
+            nextLevelSurface.blit(nextLevelBg,(relatief_X - nextLevelSurface.get_rect().width,0))
             if relatief_X < WIDTH:
                 nextLevelSurface.blit(nextLevelBg, (relatief_X,0))
+            xBg += 1
             #draw labels
-            levelLabel = fontobjTITEL.render("Congratz! You beat level"+ str(level),True,(255,255,255),None)
-            nextLevelLabel = fontobjCOMBO.render("Next level? press space..",True,(255,255,255),None)
+            levelLabel = fontobjCOMBO.render("Congratz!    You beat level "+ str(level),True,(255,255,255),None)
+            nextLevelLabel = fontobjTITEL.render("Next level?   press SPACE..",True,(255,255,255),None)
             nextLevelSurface.blit(levelLabel,(400-int(levelLabel.get_width()/2),int(HEIGHT/2)))
             nextLevelSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(HEIGHT/2)+50))
             for event in pygame.event.get():
@@ -282,12 +283,11 @@ def main():
                     if event.key == pygame.K_SPACE:
                         changeLevel = False
                         levelsPlaying = True
-                        xBg += 1
                         level += 1
                         bricksRects,bricks = createBricks(10*level)
             pygame.display.update()
             fpsClock.tick(30)
-        mainSurface.fill(black)
+            mainSurface.fill(black)
         while gameOverMenu:
             eindScore = fontobjTITEL.render("Eindscore: " + str(score), True, (255,255,255), None)
             opnieuwText = fontobj.render("Druk SPATIE voor opnieuw te spelen (werkt nog niet)", True, (255,255,255),None)
