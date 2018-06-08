@@ -13,6 +13,7 @@ def main():
     mainSurface = pygame.display.set_mode((WIDTH,HEIGHT))
     menuSurface = pygame.display.set_mode((WIDTH,HEIGHT))
     gameOverSurface = pygame.display.set_mode((WIDTH,HEIGHT))
+    nextLevelSurface = pygame.display.set_mode((WIDTH,HEIGHT))
     pygame.display.set_caption("Bricks")
     black = pygame.Color(0,0,0)
     showMenu = True
@@ -263,17 +264,27 @@ def main():
             fpsClock.tick(30) #FPS op juiste snelheid zetten
         mainSurface.fill(black)
         while changeLevel:
-            relatief_X = xBg % nextLevelBg.get_rect().height
-            mainSurface.blit(bg2,(relatief_X - nextLevelBg.get_rect().width,0))
+            #draw backgroud
+            relatief_X = xBg % nextLevelSurface.get_rect().height
+            nextLevelSurface.blit(bg2,(relatief_X - nextLevelSurface.get_rect().width,0))
             if relatief_X < WIDTH:
-                mainSurface.blit(nextLevelBg, (relatief_X,0))
-            #xBg += 1
-            #level += 1
+                nextLevelSurface.blit(nextLevelBg, (relatief_X,0))
+            #draw labels
+            levelLabel = fontobjTITEL.render("Congratz! You beat level"+ str(level),True,(255,255,255),None)
+            nextLevelLabel = fontobjCOMBO.render("Next level? press space..",True,(255,255,255),None)
+            nextLevelSurface.blit(levelLabel,(400-int(levelLabel.get_width()/2),int(HEIGHT/2)))
+            nextLevelSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(HEIGHT/2)+50))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-            #bricksRects,bricks = createBricks(10*level)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        changeLevel = False
+                        levelsPlaying = True
+                        xBg += 1
+                        level += 1
+                        bricksRects,bricks = createBricks(10*level)
             pygame.display.update()
             fpsClock.tick(30)
         mainSurface.fill(black)
