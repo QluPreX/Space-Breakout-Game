@@ -32,7 +32,7 @@ def main():
     bgMain = pygame.image.load(os.path.join(assets_folder,"bg.png"))
     gameOverBg = pygame.image.load(os.path.join(assets_folder,"gameOver.png"))
     bg1 = pygame.image.load(os.path.join(assets_folder,"bg1.jpg")).convert()
-    bg2 = pygame.image.load(os.path.join(assets_folder,"bg2.jpg")).convert()
+    bg2 = pygame.image.load(os.path.join(assets_folder,"bg2.png")).convert()
     nextLevelBg = pygame.image.load(os.path.join(assets_folder,"nextLevelBg.jpg")).convert()
     yBg = 0
     xBg = 0
@@ -46,7 +46,7 @@ def main():
     playerY = 540
     lives = 3
     bx, by = (int(WIDTH/2), playerY)
-    ballSpeed = 8
+    ballSpeed = 5
     sx, sy = (ballSpeed, ballSpeed)
     ballSprite = pygame.image.load(os.path.join(assets_folder,"ball.png"))
     ballServed = False
@@ -86,10 +86,16 @@ def main():
         #setup upgrades
         while levelsPlaying:
             #backgrouns scrolling
-            relatief_Y = yBg % bg1.get_rect().height
-            mainSurface.blit(bg1,(0,relatief_Y - bg1.get_rect().height))
-            if relatief_Y < HEIGHT:
-                mainSurface.blit(bg1, (0,relatief_Y))
+            if (level%2) == 0:
+                relatief_Y = yBg % bg1.get_rect().height
+                mainSurface.blit(bg1,(0,relatief_Y - bg1.get_rect().height))
+                if relatief_Y < HEIGHT:
+                    mainSurface.blit(bg1, (0,relatief_Y))
+            if (level%2) == 1:
+                relatief_Y = yBg % bg2.get_rect().height
+                mainSurface.blit(bg2,(0,relatief_Y - bg2.get_rect().height))
+                if relatief_Y < HEIGHT:
+                    mainSurface.blit(bg2, (0,relatief_Y))
             yBg += 1
             #levens
             for i in range(lives): #3 levens = 0,1,2
@@ -205,6 +211,7 @@ def main():
                 if lives == 0:
                     levelsPlaying = False
                     gameOverMenu = True
+                    
             if(bx <= 0):
                 sx *= -1
                 bx = 0
@@ -284,13 +291,20 @@ def main():
                         changeLevel = False
                         levelsPlaying = True
                         level += 1
+                        del upgrade1RectList[:]
+                        ballServed = False
+                        changeBall = False
+                        ballSpeed += 1
+                        sx, sy = (ballSpeed, ballSpeed)
+                        bx,by = (mouseX-int(ballRect[2]/2),playerY-batRect[3])                    
+                        ballRect.topleft = (bx,by)
                         bricksRects,bricks = createBricks(10*level)
             pygame.display.update()
             fpsClock.tick(30)
             mainSurface.fill(black)
         while gameOverMenu:
             eindScore = fontobjTITEL.render("Eindscore: " + str(score), True, (255,255,255), None)
-            opnieuwText = fontobj.render("Druk SPATIE voor opnieuw te spelen (werkt nog niet)", True, (255,255,255),None)
+            opnieuwText = fontobj.render("Druk SPATIE voor opnieuw te spelen", True, (255,255,255),None)
             afsluitText = fontobj.render("Druk ESC voor af te sluiten", True, (255,255,255),None)
             gameOverSurface.blit(gameOverBg,(0,0))
             gameOverSurface.blit(eindScore,(400-int(eindScore.get_width()/2),50))
@@ -306,7 +320,11 @@ def main():
                         levelsPlaying = True
                         eindScore,score,scoreTemp = 0,0,0
                         lives = 3
-                        bricksRects,bricks = createBricks(20)
+                        del upgrade1RectList[:]
+                        ballServed = False
+                        changeBall = False
+                        level = 1
+                        bricksRects,bricks = createBricks(10*level)
                     if event.key == pygame.K_ESCAPE:
                         gameOn = False
                         pygame.quit()
