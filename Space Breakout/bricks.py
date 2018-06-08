@@ -4,6 +4,12 @@ import random as r
 #Globale statische variabelen
 WIDTH = 800
 HEIGHT = 600
+DEVTOOLS = False #verander dit voor Cheatkeys te gebruiken
+    # key 1: increase combo score
+    # key 2: delete steen
+    # key 3: volgend level
+    # key 4: extra leven
+    # key ENTER: toon cheatKeys
 game_folder = os.path.dirname(__file__)
 #game_folder = os.path.dirname("__file__") #enkel nodig voor als je een build wilt maken met cx_Freeze "python setup.py build"
 assets_folder = os.path.join(game_folder,"Assets")
@@ -32,7 +38,7 @@ def main():
     bgMain = pygame.image.load(os.path.join(assets_folder,"bg.png"))
     gameOverBg = pygame.image.load(os.path.join(assets_folder,"gameOver.png"))
     bg1 = pygame.image.load(os.path.join(assets_folder,"bg1.jpg")).convert()
-    bg2 = pygame.image.load(os.path.join(assets_folder,"bg2.png")).convert()
+    bg2 = pygame.image.load(os.path.join(assets_folder,"bg2.jpg")).convert()
     nextLevelBg = pygame.image.load(os.path.join(assets_folder,"nextLevelBg.jpg")).convert()
     yBg = 0
     xBg = 0
@@ -140,10 +146,16 @@ def main():
                             bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
                             ballRect.topleft = (bx,by)
                         batRect.topleft = (batRect[0]+1,playerY)
-                    if event.key == pygame.K_r:
-                        scoreTemp +=1
-                    if event.key == pygame.K_t:
-                        del(bricksRects[:])
+                    if DEVTOOLS:
+                        if event.key == pygame.K_1:
+                            scoreTemp +=1
+                        if event.key == pygame.K_2:
+                            del bricksRects[0]
+                            scoreTemp += 1
+                        if event.key == pygame.K_3:
+                            del(bricksRects[:])
+                        if event.key == pygame.K_4:
+                            lives += 1
                     if event.key == pygame.K_SPACE:
                         if not ballServed:
                             ballServed = True

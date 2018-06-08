@@ -1,2 +1,2 @@
 
-    mainSurface = pygame.display.set_mode((WIDTH,HEIGHT))
+                        bricksRects,bricks = createBricks(10*level)
