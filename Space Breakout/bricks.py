@@ -4,16 +4,16 @@ import random as r
 #GLOBALE STATISCHE VARIABELEN
 WIDTH = 800
 HEIGHT = 600
-KEYSPEED = 20
-DEVTOOLS = True #verander dit voor Cheatkeys te gebruiken
-game_folder = os.path.dirname(__file__)
-#game_folder = os.path.dirname("__file__") 
+KEYBOARD_SPEED = 20
+DEVELOPER_TOOLS = True #verander dit voor Cheatkeys te gebruiken
+GAME_FOLDER = os.path.dirname(__file__)
+#GAME_FOLDER = os.path.dirname("__file__") 
 #                                 ^
 # enkel nodig voor als je een build wilt maken met cx_Freeze "python setup.py build"
-assets_folder = os.path.join(game_folder,"Assets")
+ASSETS_FOLDER = os.path.join(GAME_FOLDER,"Assets")
 def main():
     pygame.init()
-    fpsClock = pygame.time.Clock()
+    FPSCLOCK = pygame.time.Clock()
     #initiatleer DISPLAYS
     mainSurface = pygame.display.set_mode((WIDTH,HEIGHT))
     menuSurface = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -40,21 +40,23 @@ def main():
     score = 0
     scoreTemp = 0
     #sprites & achtergrond(en)
-    bgMain = pygame.image.load(os.path.join(assets_folder,"bg.png"))
-    gameOverBg = pygame.image.load(os.path.join(assets_folder,"gameOver.png"))
-    bg1 = pygame.image.load(os.path.join(assets_folder,"bg1.jpg")).convert()
-    bg2 = pygame.image.load(os.path.join(assets_folder,"bg2.jpg")).convert()
-    bg3 = pygame.image.load(os.path.join(assets_folder,"bg3.jpg")).convert()
-    bg4 = pygame.image.load(os.path.join(assets_folder,"bg4.jpg")).convert()
-    nextLevelBg = pygame.image.load(os.path.join(assets_folder,"nextLevelBg.jpg")).convert()
-    yBg = 0
+    bgMain = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg.png"))
+    gameOverBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"gameOver.png"))
+    bg1 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg1.jpg")).convert()
+    bg2 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg2.jpg")).convert()
+    bg3 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg3.jpg")).convert()
+    bg4 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg4.jpg")).convert()
+    nextLevelBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"nextLevelBg.jpg")).convert()
+    #dynamische X en Y voor bewegende achtergronden
+    yBg = 0 
     xBg = 0
     # pallet initialiseren
-    batSprite = pygame.image.load(os.path.join(assets_folder,"bat.png")).convert()
-    batLangSprite = pygame.image.load(os.path.join(assets_folder,"bat_lang.png")).convert()
-    upgrade1 = pygame.image.load(os.path.join(assets_folder,"upgrade1.png")).convert()
-    upgrade2 = pygame.image.load(os.path.join(assets_folder,"upgrade2.png")).convert()
-    heartSprite = pygame.image.load(os.path.join(assets_folder,"heart.png")).convert()
+    batSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat.png")).convert()
+    batLangSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat_lang.png")).convert()
+    upgradeBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade1.png")).convert()
+    upgradeGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade2.png")).convert()
+    upgradeSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade_sleutel.png")).convert()
+    heartSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"heart.png")).convert()
     heartRect = heartSprite.get_rect()# change topleft
     upgradeRectList = []
     playerY = 540
@@ -63,32 +65,33 @@ def main():
     ballSpeed = 4
     ballMaxSpeed = 10
     sx, sy = (ballSpeed, ballSpeed)
-    ballSprite = pygame.image.load(os.path.join(assets_folder,"ball.png"))
+    ballSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"ball.png"))
     ballServed = False
     changeBall = False
     changeBat = False
     scoreForExtraLife = 12
     maxLives = 6
     scoreComboMultiplier = 2
-    ballBigSprite = pygame.image.load(os.path.join(assets_folder,"ball_normal_big.png"))
+    ballBigSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"ball_normal_big.png"))
     batRect = batSprite.get_rect(topleft=(bx-22,playerY))
     batLangRect = batLangSprite.get_rect(topleft=(bx-22,playerY))
     ballRect = ballSprite.get_rect(topleft=(bx+int(batRect[2]/2)-26,by-int(batRect[3])))    
     ballBigRect = ballBigSprite.get_rect(topleft = (bx,by))
     mouseX = bx
     # steen initialiseren
-    brick = pygame.image.load(os.path.join(assets_folder,"brick.png"))
-    brickSpecial = pygame.image.load(os.path.join(assets_folder,"brick_blue_purple.png"))
-    brickSpecial2 = pygame.image.load(os.path.join(assets_folder,"brick_yellow_black.png"))
-    bricksRects,bricks = createBricks(4,2,level) #aatalSpecialeBricks
+    brick = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick.png")) #ID = 0
+    brickBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_blue_purple.png")) #ID = 1
+    brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
+    brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
+    bricksRects,bricks = createBricks(4,2,2,level) #aatalSpecialeBricks
     # events
     menuSurface.fill(black)
     while gameOn:
         while showMenu:
-            welkom = fontobjTITEL.render('SPACE BREAKOUT!', True, (255,255,255),black)
-            uitleg = fontobj.render('Gebruik ARROW KEYS of je MUIS',True,(255,255,255),black)
-            uitleg2 = fontobj.render('Druk SPATIE of op je muisknop voor de ball te starten!', True, (255,255,255),black)
-            start = fontobj.render('Press any key to continue...',True, (255,255,255),black)
+            welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, (255,255,255),black)
+            uitlegLijn1Label = fontobj.render('Gebruik ARROW KEYS of je MUIS',True,(255,255,255),black)
+            uitleglijn2Label = fontobj.render('Druk SPATIE of op je muisknop voor de ball te starten!', True, (255,255,255),black)
+            startLabel = fontobj.render('Press any key to continue...',True, (255,255,255),black)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -97,12 +100,12 @@ def main():
                     showMenu = False
                     levelsPlaying = True
             menuSurface.blit(bgMain,(0,0))
-            menuSurface.blit(welkom,(400-int(welkom.get_width()/2),50))
-            menuSurface.blit(uitleg,(400-int(uitleg.get_width()/2),150))
-            menuSurface.blit(uitleg2,(400-int(uitleg2.get_width()/2),180))
-            menuSurface.blit(start,(400-int(start.get_width()/2),300))
+            menuSurface.blit(welkomLabel,(400-int(welkomLabel.get_width()/2),50))
+            menuSurface.blit(uitlegLijn1Label,(400-int(uitlegLijn1Label.get_width()/2),150))
+            menuSurface.blit(uitleglijn2Label,(400-int(uitleglijn2Label.get_width()/2),180))
+            menuSurface.blit(startLabel,(400-int(startLabel.get_width()/2),300))
             pygame.display.update()
-            fpsClock.tick(10)
+            FPSCLOCK.tick(10)
         mainSurface.fill(black)
         #setup upgrades
         while levelsPlaying:
@@ -137,7 +140,7 @@ def main():
             scoreComboLabel = fontobjCOMBO.render("combo!  "+ str(scoreTemp),True,(255,255,255),None)
             LevelindicatorLabel = fontobj.render("Level:"+str(level),True,(255,255,255),None)
             mainSurface.blit(scoreLabel,(WIDTH-scoreLabel.get_width()-5,5))
-            if DEVTOOLS and showCheatKeys:
+            if DEVELOPER_TOOLS and showCheatKeys:
                 cheatKeysLabel1 = fontCheatKeys.render("key 1:..increase combo score",True,(255,255,255),None)
                 cheatKeysLabel2 = fontCheatKeys.render("key 2:..................delete steen",True,(255,255,255),None)
                 cheatKeysLabel3 = fontCheatKeys.render("key 3:.................volgend level",True,(255,255,255),None)
@@ -172,7 +175,7 @@ def main():
                     if(mouseX < WIDTH -55 or mouseX <= 55 ):#
                         if changeBat:
                             batLangRect.topleft = (mouseX-int(batLangRect[2]/2),playerY)
-                            ballRect.topleft =(batLangRect[2]/2,playerY)
+                            ballRect.topleft = (batLangRect[2]/2,playerY)
                         elif not changeBat:
                             batRect.topleft = (mouseX-int(batRect[2]/2),playerY)
                             ballRect.topleft = (batRect[2]/2,playerY)
@@ -201,25 +204,25 @@ def main():
                             if not ballServed:
                                 bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
                                 ballRect.topleft = (bx,by)
-                            batLangRect.topleft = (batLangRect[0]-KEYSPEED,playerY)
+                            batLangRect.topleft = (batLangRect[0]-KEYBOARD_SPEED,playerY)
                         elif not changeBat:
                             if not ballServed:
                                 bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
                                 ballRect.topleft = (bx,by)
-                            batRect.topleft = (batRect[0]-KEYSPEED,playerY)
+                            batRect.topleft = (batRect[0]-KEYBOARD_SPEED,playerY)
                     if event.key == pygame.K_RIGHT:
                         keyDown = "K_RIGHT"
                         if changeBat:
                             if not ballServed:
                                 bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
                                 ballRect.topleft = (bx,by)
-                            batLangRect.topleft = (batLangRect[0]+KEYSPEED,playerY)
+                            batLangRect.topleft = (batLangRect[0]+KEYBOARD_SPEED,playerY)
                         elif not changeBat:
                             if not ballServed:
                                 bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
                                 ballRect.topleft = (bx,by)
                             batRect.topleft = (batRect[0]+20,playerY)
-                    if DEVTOOLS:
+                    if DEVELOPER_TOOLS:
                         if event.key == pygame.K_RETURN:
                             if showCheatKeys:
                                 showCheatKeys = False
@@ -256,8 +259,8 @@ def main():
                         keyDown = None
             if keyDown:
                 if keyDown == "K_LEFT":
-                    batRect.topleft = (batRect[0]-KEYSPEED,playerY)
-                    batLangRect.topleft = (batLangRect[0]-KEYSPEED,playerY)
+                    batRect.topleft = (batRect[0]-KEYBOARD_SPEED,playerY)
+                    batLangRect.topleft = (batLangRect[0]-KEYBOARD_SPEED,playerY)
                     if changeBat:
                         if not ballServed:
                             bx,by = (batLangRect[0]+int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
@@ -267,8 +270,8 @@ def main():
                             bx,by = (batRect[0]+int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
                             ballRect.topleft = (bx,by)
                 if keyDown == "K_RIGHT":
-                    batLangRect.topleft = (batLangRect[0]+KEYSPEED,playerY)
-                    batRect.topleft = (batRect[0]+KEYSPEED,playerY)
+                    batLangRect.topleft = (batLangRect[0]+KEYBOARD_SPEED,playerY)
+                    batRect.topleft = (batRect[0]+KEYBOARD_SPEED,playerY)
                     if changeBat:
                         if not ballServed:
                             bx,by = (batLangRect[0]+int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
@@ -289,25 +292,32 @@ def main():
                     if b[-1] == 0 and b[-2]==c:
                         status = ""
                     elif b[-1] == 1 and b[-2]==c:
-                        status = "upgrade1"
+                        status = "upgradeBlauw"
                     elif b[-1] == 2 and b[-2]==c:
-                        status = "upgrade2"
+                        status = "upgradeGeel"
+                    elif b[-1] == 3 and b[-2]==c:
+                        status = "upgradeSleutel"
                 if status == "":
                     index = bricks.index((c,0))
                     mainSurface.blit(brick,bricks[index][-2])
-                elif status == "upgrade1":
+                elif status == "upgradeBlauw":
                     index = bricks.index((c,1))
-                    mainSurface.blit(brickSpecial,bricks[index][-2])
-                elif status == "upgrade2":
+                    mainSurface.blit(brickBlauw,bricks[index][-2])
+                elif status == "upgradeGeel":
                     index = bricks.index((c,2))
-                    mainSurface.blit(brickSpecial2,bricks[index][-2])
+                    mainSurface.blit(brickGeel,bricks[index][-2])
+                elif status == "upgradeSleutel":
+                    index = bricks.index((c,3))
+                    mainSurface.blit(brickSleutel,bricks[index][-2])
             #teken upgrades
             for u in upgradeRectList:
                 #collision detection
                 if(u[-1]==1):
-                    mainSurface.blit(upgrade1,(u[-2].topleft))
+                    mainSurface.blit(upgradeBlauw,(u[-2].topleft))
                 elif(u[-1]==2):
-                    mainSurface.blit(upgrade2,(u[-2].topleft))
+                    mainSurface.blit(upgradeGeel,(u[-2].topleft))
+                elif(u[-1]==3):
+                    mainSurface.blit(upgradeSleutel,(u[-2].topleft))
                 u[-2].topleft = (u[-2][0],u[-2][1]+ballSpeed-1) #upgrades naar beneden laten vallen, speed = 2
                 if changeBat:
                     if(batLangRect.colliderect(u[-2]) and u[-1]==1):
@@ -325,6 +335,15 @@ def main():
                         del(upgradeRectList[upgradeRectList.index(u)])
                         batLangRect.topleft = batRect.topleft
                         changeBat = True
+                if(batRect.colliderect(u[-2]) and u[-1]==3) or (batLangRect.colliderect(u[-2]) and u[-1]==3):
+                    del(upgradeRectList[upgradeRectList.index(u)])
+                    changeBat = False
+                    ballRect.topleft = (bx,by)
+                    batRect.topleft = batLangRect.topleft
+                    levelsPlaying = False
+                    changeLevel = True
+                    score += scoreTemp
+                    scoreTemp = 0
                 #out of bound detection
                 if(u[-2][1] >= HEIGHT-8): 
                     del(upgradeRectList[upgradeRectList.index(u)])
@@ -411,8 +430,10 @@ def main():
                         upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),1))
                     elif b[-1] == 2 and b[-2]==hb:
                         upX,upY = hb[0],hb[1]
-                        #upgradeRectList.append( (Rect(16,16,TEMP,TEMP)),(2))
                         upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),2))
+                    elif b[-1] == 3 and b[-2]==hb:
+                        upX,upY = hb[0],hb[1]
+                        upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),3))
                 mx = bx + 4
                 if mx > hb.x + hb.width or mx < hb.x:
                     sx *= -1
@@ -423,7 +444,7 @@ def main():
                 levelsPlaying = False
                 changeLevel = True
             pygame.display.update()
-            fpsClock.tick(30) #FPS op juiste snelheid zetten
+            FPSCLOCK.tick(30) #FPS op juiste snelheid zetten
         mainSurface.fill(black)
         while changeLevel:
             #draw backgroud
@@ -456,9 +477,9 @@ def main():
                         sx, sy = (ballSpeed, ballSpeed)
                         bx,by = (mouseX-int(ballRect[2]/2),playerY-batRect[3])                    
                         ballRect.topleft = (bx,by)
-                        bricksRects,bricks = createBricks(4,2,level)
+                        bricksRects,bricks = createBricks(4,2,2,level)
             pygame.display.update()
-            fpsClock.tick(30)
+            FPSCLOCK.tick(30)
             mainSurface.fill(black)
         while gameOverMenu:
             eindScore = fontobjTITEL.render("Eindscore: " + str(score), True, (255,255,255), None)
@@ -484,53 +505,50 @@ def main():
                         ballSpeed = 4
                         sx,sy = (ballSpeed,ballSpeed)
                         level = 1
-                        bricksRects,bricks = createBricks(4,2,level)
+                        bricksRects,bricks = createBricks(4,2,2,level)
                     if event.key == pygame.K_ESCAPE:
                         gameOn = False
                         pygame.quit()
                         sys.exit()
             pygame.display.update()
-            fpsClock.tick(10)
-def createBricks(specials1PerLevel,specials2PeLevel,level):
+            FPSCLOCK.tick(10)
+def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level):
     rands = specials1PerLevel*level
     rands2 = specials2PeLevel*level
-    bricksTemp = []
-    randomIndex1 = []
-    randomIndex2 = []
-    bricksRectsTemp = []
-    y_range_X_extra,y_range_Y_extra = 3+level,6+level
-    x_range_X_extra,x_range_Y_extra = 4+level,8+level
-    if(y_range_Y_extra >= 20):
-        y_range_X_extra,y_range_Y_extra = 13,20
-    if (x_range_Y_extra >= 16):
-        x_range_X_extra,x_range_Y_extra = 13,16
-    y_range = r.randrange(y_range_X_extra,y_range_Y_extra)
-    x_range = r.randrange(x_range_X_extra,x_range_Y_extra) #max 16
+    rands3 = sleutels
+    bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
+    YrangeVoorX,YrangeVoorY = 3+level,6+level
+    XrangeVoorX,XrangeVoorY = 4+level,8+level
+    if(YrangeVoorY >= 20):
+        YrangeVoorX,YrangeVoorY = 13,20
+    if (XrangeVoorY >= 16):
+        XrangeVoorX,XrangeVoorY = 13,16
+    yRange = r.randrange(YrangeVoorX,YrangeVoorY)
+    xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
     for i in range(rands):
-        randomIndex1.append((r.randrange(x_range),r.randrange(y_range))) #random (x,y) bvb: ((4,2),(1,1),(4,9),(0,2),(3,7))
+        randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
     for i in range(rands2):
-        randomIndex2.append((r.randrange(x_range),r.randrange(y_range))) #random (x,y) bvb: ((0,2))
-    for y in range(y_range): 
-        brickY = (y * 16) -100 + ((HEIGHT-(y_range*16))/2)
-        if level >= 10:
-            tekenkansX = r.randrange(0,20)
-        else:
-            tekenkansX = r.randrange(0,30-level)
-        if tekenkansX != 0:
-            for x in range(x_range):
-                brickX = (x*48) + ((WIDTH-(x_range*48))/2)
-                if level >= 10:
-                    tekenkansY = r.randrange(0,2)
+        randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
+    for i in range(rands3):
+        randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
+    for y in range(yRange): 
+        brickY = (y * 16) -100 + ((HEIGHT-(yRange*16))/2)
+        for x in range(xRange):
+            brickX = (x*48) + ((WIDTH-(xRange*48))/2)
+            if level >= 10:
+                tekenkansY = r.randrange(0,2)
+            else:
+                tekenkansY = r.randrange(0,12-level)
+            if tekenkansY != 0 or (x,y) in randomIndex3:
+                if (x,y) in randomIndex3:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
+                elif (x,y) in randomIndex2:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
+                elif(x,y) in randomIndex1:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
                 else:
-                    tekenkansY = r.randrange(0,12-level)
-                if tekenkansY != 0:
-                    if (x,y) in randomIndex2:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),2)) #voor special bricks te tekenen
-                    elif(x,y) in randomIndex1:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),1))
-                    else:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),0))
-                    bricksRectsTemp.append(Rect(brickX,brickY,48,16))
+                    bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
+                bricksRectsTemp.append(Rect(brickX,brickY,48,16))
     return bricksRectsTemp,bricksTemp
 def createRandoms(randoms):
     rands = []
