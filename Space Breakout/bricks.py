@@ -184,18 +184,13 @@ def main():
                         elif not changeBat:
                             batRect.topleft = (mouseX-int(batRect[2]/2),playerY)
                             ballRect.topleft = (batRect[2]/2,playerY)
-                    else:
-                        if changeBat:
-                            batLangRect.topleft =(WIDTH-55,playerY)
-                        if not changeBat:
-                            batRect.topleft = (WIDTH-55, playerY)
                     if not ballServed:
                         if changeBat:
                             if changeBall:
                                 bx,by = (mouseX-int(ballBigRect[2]/2),playerY-batLangRect[3])
                             elif not changeBall:
                                 bx,by = (mouseX-int(ballRect[2]/2),playerY-batLangRect[3])
-                            ballRect.topleft = (bx,by)                    
+                            ballRect.topleft = (bx,by)                 
                         elif not changeBat:
                             if changeBall:
                                 bx,by = (mouseX-int(ballBigRect[2]/2),playerY-batRect[3])
@@ -206,27 +201,31 @@ def main():
                     if event.key == pygame.K_LEFT:
                         keyDown = "K_LEFT"
                         if changeBat:
-                            if not ballServed:
-                                bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
-                                ballRect.topleft = (bx,by)
-                            batLangRect.topleft = (batLangRect[0]-KEYBOARD_SPEED,playerY)
+                            if batLangRect[0] > 0:
+                                if not ballServed:
+                                    bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
+                                    ballRect.topleft = (bx,by)
+                                batLangRect.topleft = (batLangRect[0]-KEYBOARD_SPEED,playerY)
                         elif not changeBat:
-                            if not ballServed:
-                                bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
-                                ballRect.topleft = (bx,by)
-                            batRect.topleft = (batRect[0]-KEYBOARD_SPEED,playerY)
+                            if batRect[0] > 0:
+                                if not ballServed:
+                                    bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
+                                    ballRect.topleft = (bx,by)
+                                batRect.topleft = (batRect[0]-KEYBOARD_SPEED,playerY)
                     if event.key == pygame.K_RIGHT:
                         keyDown = "K_RIGHT"
                         if changeBat:
-                            if not ballServed:
-                                bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
-                                ballRect.topleft = (bx,by)
-                            batLangRect.topleft = (batLangRect[0]+KEYBOARD_SPEED,playerY)
+                            if batLangRect[0] < WIDTH-batLangRect[2]:
+                                if not ballServed:
+                                    bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
+                                    ballRect.topleft = (bx,by)
+                                batLangRect.topleft = (batLangRect[0]+KEYBOARD_SPEED,playerY)
                         elif not changeBat:
-                            if not ballServed:
-                                bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
-                                ballRect.topleft = (bx,by)
-                            batRect.topleft = (batRect[0]+20,playerY)
+                            if batRect[0] < WIDTH-batRect[2]:
+                                if not ballServed:
+                                    bx,by = (batRect[0]-int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
+                                    ballRect.topleft = (bx,by)
+                                batRect.topleft = (batRect[0]+20,playerY)
                     if DEVELOPER_TOOLS:
                         if event.key == pygame.K_RETURN:
                             if showCheatKeys:
@@ -264,24 +263,36 @@ def main():
                         keyDown = None
             if keyDown:
                 if keyDown == "K_LEFT":
-                    batRect.topleft = (batRect[0]-KEYBOARD_SPEED,playerY)
-                    batLangRect.topleft = (batLangRect[0]-KEYBOARD_SPEED,playerY)
                     if changeBat:
+                        if batLangRect[0] > 0:
+                            batLangRect.topleft = (batLangRect[0]-KEYBOARD_SPEED,playerY)
+                        else:
+                            batLangRect.topleft = (0,playerY)
                         if not ballServed:
-                            bx,by = (batLangRect[0]+int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
-                            ballRect.topleft = (bx,by)
+                                bx,by = (batLangRect[0]+int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
+                                ballRect.topleft = (bx,by)
                     elif not changeBat:
+                        if batRect[0] > 0:
+                            batRect.topleft = (batRect[0]-KEYBOARD_SPEED,playerY)
+                        else:
+                            batRect.topleft = (0,playerY)
                         if not ballServed:
                             bx,by = (batRect[0]+int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
                             ballRect.topleft = (bx,by)
                 if keyDown == "K_RIGHT":
-                    batLangRect.topleft = (batLangRect[0]+KEYBOARD_SPEED,playerY)
-                    batRect.topleft = (batRect[0]+KEYBOARD_SPEED,playerY)
                     if changeBat:
+                        if batLangRect[0] < WIDTH-batLangRect[2]:
+                            batLangRect.topleft = (batLangRect[0]+KEYBOARD_SPEED,playerY)
+                        else:
+                            batLangRect.topleft = (WIDTH-batLangRect[2],playerY)
                         if not ballServed:
                             bx,by = (batLangRect[0]+int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
                             ballRect.topleft = (bx,by)
                     elif not changeBat:
+                        if batRect[0] < WIDTH-batRect[2]:
+                            batRect.topleft = (batRect[0]+KEYBOARD_SPEED,playerY)
+                        else:
+                            batRect.topleft = (WIDTH-batRect[2],playerY)
                         if not ballServed:
                             bx,by = (batRect[0]+int(batRect[2]/2)-int(ballRect[2]/2),playerY-batRect[3])
                             ballRect.topleft = (bx,by)
@@ -513,6 +524,7 @@ def main():
                         ballSpeed = 4
                         sx,sy = (ballSpeed,ballSpeed)
                         level = 1
+                        keyDown = ""
                         bricksRects,bricks = createBricks(4,2,2,level)
                     if event.key == pygame.K_ESCAPE:
                         gameOn = False
