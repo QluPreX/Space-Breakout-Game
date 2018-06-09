@@ -44,6 +44,8 @@ def main():
     gameOverBg = pygame.image.load(os.path.join(assets_folder,"gameOver.png"))
     bg1 = pygame.image.load(os.path.join(assets_folder,"bg1.jpg")).convert()
     bg2 = pygame.image.load(os.path.join(assets_folder,"bg2.jpg")).convert()
+    bg3 = pygame.image.load(os.path.join(assets_folder,"bg3.jpg")).convert()
+    bg4 = pygame.image.load(os.path.join(assets_folder,"bg4.jpg")).convert()
     nextLevelBg = pygame.image.load(os.path.join(assets_folder,"nextLevelBg.jpg")).convert()
     yBg = 0
     xBg = 0
@@ -58,13 +60,16 @@ def main():
     playerY = 540
     lives = 3
     bx, by = (int(WIDTH/2), playerY)
-    ballSpeed = 5
+    ballSpeed = 4
+    ballMaxSpeed = 10
     sx, sy = (ballSpeed, ballSpeed)
-    px, py = (int(WIDTH/2), playerY)
     ballSprite = pygame.image.load(os.path.join(assets_folder,"ball.png"))
     ballServed = False
     changeBall = False
     changeBat = False
+    scoreForExtraLife = 12
+    maxLives = 6
+    scoreComboMultiplier = 2
     ballBigSprite = pygame.image.load(os.path.join(assets_folder,"ball_normal_big.png"))
     batRect = batSprite.get_rect(topleft=(bx-22,playerY))
     batLangRect = batLangSprite.get_rect(topleft=(bx-22,playerY))
@@ -75,7 +80,7 @@ def main():
     brick = pygame.image.load(os.path.join(assets_folder,"brick.png"))
     brickSpecial = pygame.image.load(os.path.join(assets_folder,"brick_blue_purple.png"))
     brickSpecial2 = pygame.image.load(os.path.join(assets_folder,"brick_yellow_black.png"))
-    bricksRects,bricks = createBricks(5*level,2*level,level) #aatalSpecialeBricks
+    bricksRects,bricks = createBricks(4,2,level) #aatalSpecialeBricks
     # events
     menuSurface.fill(black)
     while gameOn:
@@ -102,16 +107,26 @@ def main():
         #setup upgrades
         while levelsPlaying:
             #backgrouns scrolling
-            if (level%2) == 0:
+            if (level%4) == 0:
                 relatief_Y = yBg % bg1.get_rect().height
                 mainSurface.blit(bg1,(0,relatief_Y - bg1.get_rect().height))
                 if relatief_Y < HEIGHT:
                     mainSurface.blit(bg1, (0,relatief_Y))
-            if (level%2) == 1:
+            if (level%4) == 1:
                 relatief_Y = yBg % bg2.get_rect().height
                 mainSurface.blit(bg2,(0,relatief_Y - bg2.get_rect().height))
                 if relatief_Y < HEIGHT:
                     mainSurface.blit(bg2, (0,relatief_Y))
+            if (level%4) == 2:
+                relatief_Y = yBg % bg3.get_rect().height
+                mainSurface.blit(bg3,(0,relatief_Y - bg3.get_rect().height))
+                if relatief_Y < HEIGHT:
+                    mainSurface.blit(bg3, (0,relatief_Y))
+            if (level%4) == 3:
+                relatief_Y = yBg % bg4.get_rect().height
+                mainSurface.blit(bg4,(0,relatief_Y - bg4.get_rect().height))
+                if relatief_Y < HEIGHT:
+                    mainSurface.blit(bg4, (0,relatief_Y))
             yBg += 1
             #levens
             for i in range(lives): #3 levens = 0,1,2
@@ -163,9 +178,9 @@ def main():
                             ballRect.topleft = (batRect[2]/2,playerY)
                     else:
                         if changeBat:
-                            batLangRect.topleft =(800-55,playerY)
+                            batLangRect.topleft =(WIDTH-55,playerY)
                         if not changeBat:
-                            batRect.topleft = (800-55, playerY)
+                            batRect.topleft = (WIDTH-55, playerY)
                     if not ballServed:
                         if changeBat:
                             if changeBall:
@@ -218,15 +233,19 @@ def main():
                         if event.key == pygame.K_3:
                             del(bricksRects[:])
                         if event.key == pygame.K_4:
-                            if(lives < 6):
+                            if(lives < maxLives):
                                 lives += 1
                         if event.key == pygame.K_5:
                             changeBall = True
                         if event.key == pygame.K_6:
                             changeBat = True
                         if event.key == pygame.K_7:
-                            ballSpeed += 1
-                            sx,sy = (ballSpeed,ballSpeed)
+                            if ballSpeed < ballMaxSpeed:
+                                ballSpeed += 1
+                                if sx < 0 and sy < 0:
+                                    sx,sy = (ballSpeed,ballSpeed)
+                                elif sx > 0 and sy > 0:
+                                    sx,sy = (ballSpeed,ballSpeed)
                     if event.key == pygame.K_SPACE:
                         if not ballServed:
                             ballServed = True
@@ -289,7 +308,7 @@ def main():
                     mainSurface.blit(upgrade1,(u[-2].topleft))
                 elif(u[-1]==2):
                     mainSurface.blit(upgrade2,(u[-2].topleft))
-                u[-2].topleft = (u[-2][0],u[-2][1]+ballSpeed-3) #upgrades naar beneden laten vallen, speed = 2
+                u[-2].topleft = (u[-2][0],u[-2][1]+ballSpeed-1) #upgrades naar beneden laten vallen, speed = 2
                 if changeBat:
                     if(batLangRect.colliderect(u[-2]) and u[-1]==1):
                         del(upgradeRectList[upgradeRectList.index(u)])
@@ -307,7 +326,7 @@ def main():
                         batLangRect.topleft = batRect.topleft
                         changeBat = True
                 #out of bound detection
-                if(u[-2][1] >= HEIGHT-8):
+                if(u[-2][1] >= HEIGHT-8): 
                     del(upgradeRectList[upgradeRectList.index(u)])
             # teken pallet en bal
             if ballServed:
@@ -318,8 +337,11 @@ def main():
             if(by <= 0): #onderkant collide
                 by = 0 
                 sy *= -1
-            if(by >= HEIGHT-8):  #bovenkant collide
-                by = HEIGHT-8
+            if(changeBall and by >= HEIGHT-24 ) or (not changeBall and by >= HEIGHT-16):  #bovenkant collide
+                if not changeBall:
+                    by = HEIGHT-16
+                else:
+                    by = HEIGHT-24
                 sy *= -1
                 ballServed = False
                 if changeBat:
@@ -349,9 +371,9 @@ def main():
             # botsingen detecteren
             if not changeBall and ((ballRect.colliderect(batRect) and not changeBat)or(ballRect.colliderect(batLangRect) and changeBat)):
                 #botsting met kleine bal
-                by = playerY-8
+                by = playerY-16
                 sy *= -1
-                if scoreTemp >= 25 and lives < 6:
+                if scoreTemp >= scoreForExtraLife and lives < maxLives:
                     lives += 1
                 score += scoreTemp
                 scoreTemp = 0
@@ -360,15 +382,15 @@ def main():
                 changeBat = False
             elif changeBall and ((ballBigRect.colliderect(batRect) and not changeBat)or(ballBigRect.colliderect(batLangRect) and changeBat)):
                 #botsing met grote bal
-                by = playerY-16
+                by = playerY-24
                 sy *= -1
                 changeBall = False
                 if changeBat:
                     batRect.topleft = batLangRect.topleft
                 changeBat = False
-                if scoreTemp >= 12 and lives < 6:
+                if scoreTemp >= scoreForExtraLife and lives < maxLives:
                     lives += 1
-                score += scoreTemp*2
+                score += scoreTemp*scoreComboMultiplier
                 scoreTemp = 0
             brickHitIndex = []
             if not changeBall:
@@ -429,12 +451,12 @@ def main():
                         del upgradeRectList[:]
                         ballServed = False
                         changeBall = False
-                        if ballSpeed <= 12:
+                        if ballSpeed < ballMaxSpeed:
                             ballSpeed += 1
                         sx, sy = (ballSpeed, ballSpeed)
                         bx,by = (mouseX-int(ballRect[2]/2),playerY-batRect[3])                    
                         ballRect.topleft = (bx,by)
-                        bricksRects,bricks = createBricks(5*level,2*level,level)
+                        bricksRects,bricks = createBricks(4,2,level)
             pygame.display.update()
             fpsClock.tick(30)
             mainSurface.fill(black)
@@ -459,25 +481,27 @@ def main():
                         del upgradeRectList[:]
                         ballServed = False
                         changeBall = False
-                        ballSpeed = 5
+                        ballSpeed = 4
                         sx,sy = (ballSpeed,ballSpeed)
                         level = 1
-                        bricksRects,bricks = createBricks(5*level,2*level,level)
+                        bricksRects,bricks = createBricks(4,2,level)
                     if event.key == pygame.K_ESCAPE:
                         gameOn = False
                         pygame.quit()
                         sys.exit()
             pygame.display.update()
             fpsClock.tick(10)
-def createBricks(rands,rands2,level):
+def createBricks(specials1PerLevel,specials2PeLevel,level):
+    rands = specials1PerLevel*level
+    rands2 = specials2PeLevel*level
     bricksTemp = []
     randomIndex1 = []
     randomIndex2 = []
     bricksRectsTemp = []
-    y_range_X_extra,y_range_Y_extra = 1+level,4+level
-    x_range_X_extra,x_range_Y_extra = 4+level,9+level
+    y_range_X_extra,y_range_Y_extra = 3+level,6+level
+    x_range_X_extra,x_range_Y_extra = 4+level,8+level
     if(y_range_Y_extra >= 20):
-        y_range_X_extra,y_range_Y_extra = 16,20
+        y_range_X_extra,y_range_Y_extra = 13,20
     if (x_range_Y_extra >= 16):
         x_range_X_extra,x_range_Y_extra = 13,16
     y_range = r.randrange(y_range_X_extra,y_range_Y_extra)
@@ -487,21 +511,26 @@ def createBricks(rands,rands2,level):
     for i in range(rands2):
         randomIndex2.append((r.randrange(x_range),r.randrange(y_range))) #random (x,y) bvb: ((0,2))
     for y in range(y_range): 
-        brickY = (y * 16) -100 + ((600-(y_range*16))/2)
-        for x in range(x_range):
-            brickX = (x*48) + ((800-(x_range*48))/2)
-            if level >= 10:
-                tekenkans = r.randrange(0,2)
-            else:
-                tekenkans = r.randrange(0,12-level)
-            if tekenkans != 0:
-                if (x,y) in randomIndex2:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),2)) #voor special bricks te tekenen
-                elif(x,y) in randomIndex1:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),1))
+        brickY = (y * 16) -100 + ((HEIGHT-(y_range*16))/2)
+        if level >= 10:
+            tekenkansX = r.randrange(0,20)
+        else:
+            tekenkansX = r.randrange(0,30-level)
+        if tekenkansX != 0:
+            for x in range(x_range):
+                brickX = (x*48) + ((WIDTH-(x_range*48))/2)
+                if level >= 10:
+                    tekenkansY = r.randrange(0,2)
                 else:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),0))
-                bricksRectsTemp.append(Rect(brickX,brickY,48,16))
+                    tekenkansY = r.randrange(0,12-level)
+                if tekenkansY != 0:
+                    if (x,y) in randomIndex2:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),2)) #voor special bricks te tekenen
+                    elif(x,y) in randomIndex1:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),1))
+                    else:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),0))
+                    bricksRectsTemp.append(Rect(brickX,brickY,48,16))
     return bricksRectsTemp,bricksTemp
 def createRandoms(randoms):
     rands = []
