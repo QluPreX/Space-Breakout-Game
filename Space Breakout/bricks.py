@@ -289,7 +289,7 @@ def main():
                     mainSurface.blit(upgrade1,(u[-2].topleft))
                 elif(u[-1]==2):
                     mainSurface.blit(upgrade2,(u[-2].topleft))
-                u[-2].topleft = (u[-2][0],u[-2][1]+1*level) #upgrades naar beneden laten vallen, speed = 2
+                u[-2].topleft = (u[-2][0],u[-2][1]+ballSpeed-3) #upgrades naar beneden laten vallen, speed = 2
                 if changeBat:
                     if(batLangRect.colliderect(u[-2]) and u[-1]==1):
                         del(upgradeRectList[upgradeRectList.index(u)])
@@ -487,7 +487,7 @@ def createBricks(rands,rands2,level):
     for i in range(rands2):
         randomIndex2.append((r.randrange(x_range),r.randrange(y_range))) #random (x,y) bvb: ((0,2))
     for y in range(y_range): 
-        brickY = (y * 16) -50 + ((600-(y_range*16))/2)
+        brickY = (y * 16) -100 + ((600-(y_range*16))/2)
         for x in range(x_range):
             brickX = (x*48) + ((800-(x_range*48))/2)
             if level >= 10:
