@@ -338,12 +338,10 @@ def main():
                 if(batRect.colliderect(u[-2]) and u[-1]==3) or (batLangRect.colliderect(u[-2]) and u[-1]==3):
                     del(upgradeRectList[upgradeRectList.index(u)])
                     changeBat = False
-                    ballRect.topleft = (bx,by)
-                    batRect.topleft = batLangRect.topleft
                     levelsPlaying = False
                     changeLevel = True
                     score += scoreTemp
-                    scoreTemp = 0
+
                 #out of bound detection
                 if(u[-2][1] >= HEIGHT-8): 
                     del(upgradeRectList[upgradeRectList.index(u)])
@@ -466,6 +464,8 @@ def main():
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
+                        keyDown = ""
+                        scoreTemp = 0
                         changeLevel = False
                         levelsPlaying = True
                         level += 1
@@ -476,7 +476,8 @@ def main():
                             ballSpeed += 1
                         sx, sy = (ballSpeed, ballSpeed)
                         bx,by = (mouseX-int(ballRect[2]/2),playerY-batRect[3])                    
-                        ballRect.topleft = (bx,by)
+                        ballRect.topleft = (bx,by) = ((WIDTH/2)-int(ballRect[2]/2),playerY-ballRect[3]) #FIXME:FIXME:FIXME:FIXME:FIXME:FIXME:FIXME:
+                        batRect.topleft = batLangRect.topleft = ((WIDTH/2)-int(batRect[2]/2),playerY)
                         bricksRects,bricks = createBricks(4,2,2,level)
             pygame.display.update()
             FPSCLOCK.tick(30)
