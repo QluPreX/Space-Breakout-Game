@@ -5,8 +5,8 @@ import random as r
 WIDTH = 800
 HEIGHT = 600
 DEVTOOLS = True #verander dit voor Cheatkeys te gebruiken
-game_folder = os.path.dirname(__file__)
-#game_folder = os.path.dirname("__file__") #enkel nodig voor als je een build wilt maken met cx_Freeze "python setup.py build"
+#game_folder = os.path.dirname(__file__)
+game_folder = os.path.dirname("__file__") #enkel nodig voor als je een build wilt maken met cx_Freeze "python setup.py build"
 assets_folder = os.path.join(game_folder,"Assets")
 def main():
     pygame.init()
@@ -22,7 +22,7 @@ def main():
     levelsPlaying = False
     gameOverMenu = False
     changeLevel = False
-    showCheatKeys = True
+    showCheatKeys = False
     level = 1
     keyDown = None
     fontobj = pygame.font.Font("freesansbold.ttf", 14)
@@ -159,7 +159,7 @@ def main():
                         keyDown = "K_LEFT"
                         if changeBat:
                             if not ballServed:
-                                bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batbatLangRectRect[3])
+                                bx,by = (batLangRect[0]-int(batLangRect[2]/2)-int(ballRect[2]/2),playerY-batLangRect[3])
                                 ballRect.topleft = (bx,by)
                             batLangRect.topleft = (batLangRect[0]-1,playerY)
                         elif not changeBat:
@@ -263,6 +263,7 @@ def main():
                         changeBall = True
                     elif(batLangRect.colliderect(u[-2]) and u[-1]==2):
                         del(upgradeRectList[upgradeRectList.index(u)])
+                        batLangRect.topleft = batRect.topleft
                         changeBat = True
                 elif not changeBat:
                     if(batRect.colliderect(u[-2]) and u[-1]==1):
@@ -270,6 +271,7 @@ def main():
                         changeBall = True
                     elif(batRect.colliderect(u[-2]) and u[-1]==2):
                         del(upgradeRectList[upgradeRectList.index(u)])
+                        batLangRect.topleft = batRect.topleft
                         changeBat = True
                 #out of bound detection
                 if(u[-2][1] >= HEIGHT-8):
@@ -320,11 +322,13 @@ def main():
                     lives += 1
                 score += scoreTemp
                 scoreTemp = 0
+                batRect.topleft = batLangRect.topleft
                 changeBat = False
             elif ((ballRect.colliderect(batRect) and not changeBat)or(ballRect.colliderect(batLangRect) and changeBat)):
                 by = playerY-16
                 sy *= -1
                 changeBall = False
+                batRect.topleft = batLangRect.topleft
                 changeBat = False
                 if scoreTemp >= 12:
                     lives += 1
