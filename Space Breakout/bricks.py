@@ -25,7 +25,7 @@ def main():
     black = pygame.Color(0,0,0)
     white = pygame.Color(255,255,255)
     #Lijst van Dynamische Variabelen
-    showMenu = True     #Toont MENU DISPLAY
+    showMenu = True     #Toont MENU DISPsLAY
     gameOn = True       #Laat het volledige spel afspelen.False: Spel stopt
     levelsPlaying = False   #toont het DISPLAY waar levels worden gespeeld
     gameOverMenu = False    #Toont het DISPLAY GAME OVER
@@ -38,7 +38,11 @@ def main():
     fontobjCOMBO = pygame.font.Font("freesansbold.ttf",30)
     fontCheatKeys = pygame.font.Font(None,22)
     score = 0
-    scoreTemp = 0
+    scoreTemp = 0   
+    #adding sounds
+    #FIXME:PATH NOT CORRECT!FIXME:
+    pygame.mixer.music.load(os.path.join(ASSETS_FOLDER,"8-bit-music-loop.wav"))
+    batBotsingSound = pygame.mixer.Sound(os.path.join(ASSETS_FOLDER,"drop-a-brick.wav"))
     #sprites & achtergrond(en)
     bgMain = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg.png"))
     gameOverBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"gameOver.png"))
@@ -87,11 +91,12 @@ def main():
     # events
     menuSurface.fill(black)
     while gameOn:
+        pygame.mixer.music.play(-1)
         while showMenu:
-            welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, (255,255,255),black)
-            uitlegLijn1Label = fontobj.render('Gebruik ARROW KEYS of je MUIS',True,(255,255,255),black)
-            uitleglijn2Label = fontobj.render('Druk SPATIE of op je muisknop voor de ball te starten!', True, (255,255,255),black)
-            startLabel = fontobj.render('Press any key to continue...',True, (255,255,255),black)
+            welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, white,black)
+            uitlegLijn1Label = fontobj.render('Gebruik ARROW KEYS of je MUIS',True,white,black)
+            uitleglijn2Label = fontobj.render('Druk SPATIE of op je muisknop voor de ball te starten!', True, white,black)
+            startLabel = fontobj.render('Press any key to continue...',True, white,black)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -136,19 +141,19 @@ def main():
                 x,y = ((heartRect[2]*i)+5,5)
                 mainSurface.blit(heartSprite,(x,y))
             #onscreen text
-            scoreLabel = fontobjTITEL.render(str(score),True,(255,255,255),None)
-            scoreComboLabel = fontobjCOMBO.render("combo!  "+ str(scoreTemp),True,(255,255,255),None)
-            LevelindicatorLabel = fontobj.render("Level:"+str(level),True,(255,255,255),None)
+            scoreLabel = fontobjTITEL.render(str(score),True,white,None)
+            scoreComboLabel = fontobjCOMBO.render("combo!  "+ str(scoreTemp),True,white,None)
+            LevelindicatorLabel = fontobj.render("Level:"+str(level),True,white,None)
             mainSurface.blit(scoreLabel,(WIDTH-scoreLabel.get_width()-5,5))
             if DEVELOPER_TOOLS and showCheatKeys:
-                cheatKeysLabel1 = fontCheatKeys.render("key 1:..increase combo score",True,(255,255,255),None)
-                cheatKeysLabel2 = fontCheatKeys.render("key 2:..................delete steen",True,(255,255,255),None)
-                cheatKeysLabel3 = fontCheatKeys.render("key 3:.................volgend level",True,(255,255,255),None)
-                cheatKeysLabel4 = fontCheatKeys.render("key 4:....................extra leven",True,(255,255,255),None)
-                cheatKeysLabel5 = fontCheatKeys.render("key 5:.............maak bal groot",True,(255,255,255),None)
-                cheatKeysLabel6 = fontCheatKeys.render("key 6:........maak player groot",True,(255,255,255),None)
-                cheatKeysLabel7 = fontCheatKeys.render("key 7:........increase ball speed",True,(255,255,255),None)
-                cheatKeysLabel8 = fontCheatKeys.render("key ENTER:..........Keys Menu",True,(255,255,255),None)
+                cheatKeysLabel1 = fontCheatKeys.render("key 1:..increase combo score",True,white,None)
+                cheatKeysLabel2 = fontCheatKeys.render("key 2:..................delete steen",True,white,None)
+                cheatKeysLabel3 = fontCheatKeys.render("key 3:.................volgend level",True,white,None)
+                cheatKeysLabel4 = fontCheatKeys.render("key 4:....................extra leven",True,white,None)
+                cheatKeysLabel5 = fontCheatKeys.render("key 5:.............maak bal groot",True,white,None)
+                cheatKeysLabel6 = fontCheatKeys.render("key 6:........maak player groot",True,white,None)
+                cheatKeysLabel7 = fontCheatKeys.render("key 7:........increase ball speed",True,white,None)
+                cheatKeysLabel8 = fontCheatKeys.render("key ENTER:..........Keys Menu",True,white,None)
                 mainSurface.blit(cheatKeysLabel1,(WIDTH-cheatKeysLabel1.get_width(),HEIGHT-cheatKeysLabel1.get_height()*1))
                 mainSurface.blit(cheatKeysLabel2,(WIDTH-cheatKeysLabel2.get_width(),HEIGHT-cheatKeysLabel1.get_height()*2))
                 mainSurface.blit(cheatKeysLabel3,(WIDTH-cheatKeysLabel3.get_width(),HEIGHT-cheatKeysLabel1.get_height()*3))
@@ -388,6 +393,7 @@ def main():
             # botsingen detecteren
             if not changeBall and ((ballRect.colliderect(batRect) and not changeBat)or(ballRect.colliderect(batLangRect) and changeBat)):
                 #botsting met kleine bal
+                pygame.mixer.Sound.play(batBotsingSound)
                 by = playerY-16
                 sy *= -1
                 if scoreTemp >= scoreForExtraLife and lives < maxLives:
@@ -399,6 +405,7 @@ def main():
                 changeBat = False
             elif changeBall and ((ballBigRect.colliderect(batRect) and not changeBat)or(ballBigRect.colliderect(batLangRect) and changeBat)):
                 #botsing met grote bal
+                pygame.mixer.Sound.play(batBotsingSound)
                 by = playerY-24
                 sy *= -1
                 changeBall = False
@@ -452,9 +459,9 @@ def main():
                 nextLevelSurface.blit(nextLevelBg, (relatief_X,0))
             xBg += 1
             #draw labels
-            levelLabel1 = fontobjCOMBO.render("Congratulation!",True,(255,255,255),None)
-            levelLabel2 = fontobjCOMBO.render("You completed LEVEL "+ str(level) + "!",True,(255,255,255),None)
-            nextLevelLabel = fontobjTITEL.render("proceed to next level, press SPACE..",True,(255,255,255),None)
+            levelLabel1 = fontobjCOMBO.render("Congratulation!",True,white,None)
+            levelLabel2 = fontobjCOMBO.render("You completed LEVEL "+ str(level) + "!",True,white,None)
+            nextLevelLabel = fontobjTITEL.render("proceed to next level, press SPACE..",True,white,None)
             nextLevelSurface.blit(levelLabel1,(400-int(levelLabel1.get_width()/2),int(HEIGHT/4)))
             nextLevelSurface.blit(levelLabel2,(400-int(levelLabel2.get_width()/2),int(HEIGHT/4)+40))
             nextLevelSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(HEIGHT/2)+50))
@@ -483,9 +490,9 @@ def main():
             FPSCLOCK.tick(30)
             mainSurface.fill(black)
         while gameOverMenu:
-            eindScore = fontobjTITEL.render("Eindscore: " + str(score), True, (255,255,255), None)
-            opnieuwText = fontobj.render("Druk SPATIE voor opnieuw te spelen", True, (255,255,255),None)
-            afsluitText = fontobj.render("Druk ESC voor af te sluiten", True, (255,255,255),None)
+            eindScore = fontobjTITEL.render("Eindscore: " + str(score), True, white, None)
+            opnieuwText = fontobj.render("Druk SPATIE voor opnieuw te spelen", True, white,None)
+            afsluitText = fontobj.render("Druk ESC voor af te sluiten", True, white,None)
             gameOverSurface.blit(gameOverBg,(0,0))
             gameOverSurface.blit(eindScore,(400-int(eindScore.get_width()/2),50))
             gameOverSurface.blit(opnieuwText,(400-int(opnieuwText.get_width()/2),500))
