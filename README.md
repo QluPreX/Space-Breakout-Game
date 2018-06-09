@@ -12,7 +12,8 @@ located : Space Breakout > build
 
 unzip & Open "bricks.exe" 
 
-OR download here: https://github.com/QluPreX/Spcom/QluPreX/Space-Breakout-Game/raw/master/Space%20Breakout/build/gameFiles.zip
+OR download here: https://github.com/QluPreX/Space-Breakout-Game/blob/master/Space%20Breakout/build/gameFiles.zip 
+
 
 (Press "ENTER" to see cheat options)
 
