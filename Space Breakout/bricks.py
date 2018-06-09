@@ -40,7 +40,6 @@ def main():
     score = 0
     scoreTemp = 0   
     #adding sounds
-    #FIXME:PATH NOT CORRECT!FIXME:
     pygame.mixer.music.load(os.path.join(ASSETS_FOLDER,"8-bit-music-loop.wav"))
     batBotsingSound = pygame.mixer.Sound(os.path.join(ASSETS_FOLDER,"drop-a-brick.wav"))
     #sprites & achtergrond(en)
@@ -177,7 +176,7 @@ def main():
                         ballServed = True
                 elif event.type == pygame.MOUSEMOTION:
                     mouseX = event.pos[0] #mousex = X positie van de muis
-                    if(mouseX < WIDTH -55 or mouseX <= 55 ):#
+                    if(mouseX < WIDTH or mouseX <= 0 ):#
                         if changeBat:
                             batLangRect.topleft = (mouseX-int(batLangRect[2]/2),playerY)
                             ballRect.topleft = (batLangRect[2]/2,playerY)
@@ -559,7 +558,7 @@ def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level):
                 tekenkansY = r.randrange(0,2)
             else:
                 tekenkansY = r.randrange(0,12-level)
-            if tekenkansY != 0 or (x,y) in randomIndex3:
+            if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
                 if (x,y) in randomIndex3:
                     bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
                 elif (x,y) in randomIndex2:
