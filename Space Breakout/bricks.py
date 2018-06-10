@@ -34,7 +34,7 @@ def main():
             gb.FPSCLOCK.tick(10)
         gb.mainSurface.fill(gb.black)
         #setup upgrades
-        gb.bricksRects,gb.bricks = gb.createBricks(4,2,2,gb.level) #aatalSpecialeBricks
+        gb.bricksRects,gb.bricks = createBricks(4,2,2) #aatalSpecialeBricks
         while gb.levelsPlaying:
             #backgrouns scrolling
             if (gb.level%4) == 0:
@@ -98,26 +98,26 @@ def main():
                     if not gb.ballServed:
                         gb.ballServed = True
                 elif event.type == pygame.MOUSEMOTION:
-                    mouseX = event.pos[0] #mousex = X positie van de muis
-                    if(mouseX < gb.WIDTH or mouseX <= 0 ):#
+                    gb.mouseX = event.pos[0] #mousex = X positie van de muis
+                    if(gb.mouseX < gb.WIDTH or gb.mouseX <= 0 ):#
                         if gb.changeBat:
-                            gb.batLangRect.topleft = (mouseX-int(gb.batLangRect[2]/2),gb.playerY)
+                            gb.batLangRect.topleft = (gb.mouseX-int(gb.batLangRect[2]/2),gb.playerY)
                             gb.ballRect.topleft = (gb.batLangRect[2]/2,gb.playerY)
                         elif not gb.changeBat:
-                            gb.batRect.topleft = (mouseX-int(gb.batRect[2]/2),gb.playerY)
+                            gb.batRect.topleft = (gb.mouseX-int(gb.batRect[2]/2),gb.playerY)
                             gb.ballRect.topleft = (gb.batRect[2]/2,gb.playerY)
                     if not gb.ballServed:
                         if gb.changeBat:
                             if gb.changeBall:
-                                gb.bx,gb.by = (mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batLangRect[3])
+                                gb.bx,gb.by = (gb.mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batLangRect[3])
                             elif not gb.changeBall:
-                                gb.bx,gb.by = (mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
+                                gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
                             gb.ballRect.topleft = (gb.bx,gb.by)
                         elif not gb.changeBat:
                             if gb.changeBall:
-                                gb.bx,gb.by = (mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batRect[3])
+                                gb.bx,gb.by = (gb.mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batRect[3])
                             elif not gb.changeBall:
-                                gb.bx,gb.by = (mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+                                gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                             gb.ballRect.topleft = (gb.bx,gb.by)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
@@ -251,7 +251,7 @@ def main():
             for u in gb.upgradeRectList:
                 #collision detection
                 if(u[-1]==1):
-                    gb.nSurface.blit(gb.upgradeBlauw,(u[-2].topleft))
+                    gb.mainSurface.blit(gb.upgradeBlauw,(u[-2].topleft))
                 elif(u[-1]==2):
                     gb.mainSurface.blit(gb.upgradeGeel,(u[-2].topleft))
                 elif(u[-1]==3):
@@ -292,7 +292,7 @@ def main():
             if(gb.by <= 0): #onderkant collide
                 gb.by = 0
                 gb.sy *= -1
-            if(gb.changeBall and by >= gb.HEIGHT-24 ) or (not gb.changeBall and by >= gb.HEIGHT-16):  #bovenkant collide
+            if(gb.changeBall and gb.by >= gb.HEIGHT-24 ) or (not gb.changeBall and gb.by >= gb.HEIGHT-16):  #bovenkant collide
                 if not gb.changeBall:
                     gb.by = gb.HEIGHT-16
                 else:
@@ -412,10 +412,10 @@ def main():
                         if gb.ballSpeed <gb.ballMaxSpeed:
                             gb.ballSpeed += 1
                         gb.sx, gb.sy = (gb.ballSpeed, gb.ballSpeed)
-                        gb.bx,gb.by = (mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+                        gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                         gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
                         gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
-                        gb.bricksRects,bricks = gb.createBricks(4,2,2,gb.level)
+                        gb.bricksRects,bricks = createBricks(4,2,2)
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
@@ -433,18 +433,7 @@ def main():
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        gb.gameOverMenu = False
-                        gb.levelsPlaying = True
-                        gb.eindScore,gb.score,gb.scoreTemp = 0,0,0
-                        gb.lives = 3
-                        del gb.upgradeRectList[:]
-                        gb.ballServed = False
-                        gb.changeBall = False
-                        gb.ballSpeed = 4
-                        gb.sx,gb.y = (gb.ballSpeed,gb.ballSpeed)
-                        gb.level = 1
-                        gb.keyDown = ""
-                        gb.bricksRects,gb.bricks = gb.createBricks(4,2,2,gb.level)
+                        resetForNewGame()
                     if event.key == pygame.K_ESCAPE:
                         gb.gameOn = False
                         pygame.quit()
@@ -512,7 +501,6 @@ class gb():
     bg4 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg4.jpg")).convert()
     nextLevelBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"nextLevelBg.jpg")).convert()
     #dynamische X en Y voor bewegende achtergronden
-
     # pallet initialiseren
     batSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat.png")).convert()
     batLangSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat_lang.png")).convert()
@@ -537,44 +525,58 @@ class gb():
     brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
     brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
-    def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level,height = HEIGHT, width = WIDTH):
-        rands = specials1PerLevel*level
-        rands2 = specials2PeLevel*level
-        rands3 = sleutels
-        bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
-        YrangeVoorX,YrangeVoorY = 3+level,6+level
-        XrangeVoorX,XrangeVoorY = 4+level,8+level
-        if(YrangeVoorY >= 20):
-            YrangeVoorX,YrangeVoorY = 13,20
-        if (XrangeVoorY >= 16):
-            XrangeVoorX,XrangeVoorY = 13,16
-        yRange = r.randrange(YrangeVoorX,YrangeVoorY)
-        xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
-        for i in range(rands):
-            randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
-        for i in range(rands2):
-            randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
-        for i in range(rands3):
-            randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
-        for y in range(yRange):
-            brickY = (y * 16) -100 + ((height-(yRange*16))/2)
-            for x in range(xRange):
-                brickX = (x*48) + ((width-(xRange*48))/2)
-                if level >= 10:
-                    tekenkansY = r.randrange(0,2)
+
+def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level = gb.level,height = gb.HEIGHT, width = gb.WIDTH):
+    rands = specials1PerLevel*level
+    rands2 = specials2PeLevel*level
+    rands3 = sleutels
+    bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
+    YrangeVoorX,YrangeVoorY = 3+level,6+level
+    XrangeVoorX,XrangeVoorY = 4+level,8+level
+    if(YrangeVoorY >= 20):
+        YrangeVoorX,YrangeVoorY = 13,20
+    if (XrangeVoorY >= 16):
+        XrangeVoorX,XrangeVoorY = 13,16
+    yRange = r.randrange(YrangeVoorX,YrangeVoorY)
+    xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
+    for i in range(rands):
+        randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
+    for i in range(rands2):
+        randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
+    for i in range(rands3):
+        randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
+    for y in range(yRange):
+        brickY = (y * 16) -100 + ((height-(yRange*16))/2)
+        for x in range(xRange):
+            brickX = (x*48) + ((width-(xRange*48))/2)
+            if level >= 10:
+                tekenkansY = r.randrange(0,2)
+            else:
+                tekenkansY = r.randrange(0,12-level)
+            if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
+                if (x,y) in randomIndex3:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
+                elif (x,y) in randomIndex2:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
+                elif(x,y) in randomIndex1:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
                 else:
-                    tekenkansY = r.randrange(0,12-level)
-                if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
-                    if (x,y) in randomIndex3:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
-                    elif (x,y) in randomIndex2:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
-                    elif(x,y) in randomIndex1:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
-                    else:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
-                    bricksRectsTemp.append(Rect(brickX,brickY,48,16))
-        return bricksRectsTemp,bricksTemp
+                    bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
+                bricksRectsTemp.append(Rect(brickX,brickY,48,16))
+    return bricksRectsTemp,bricksTemp
+def resetForNewGame():
+    gb.gameOverMenu = False
+    gb.levelsPlaying = True
+    gb.eindScore,gb.score,gb.scoreTemp = 0,0,0
+    gb.lives = 3
+    del gb.upgradeRectList[:]
+    gb.ballServed = False
+    gb.changeBall = False
+    gb.ballSpeed = 4
+    gb.sx,gb.y = (gb.ballSpeed,gb.ballSpeed)
+    gb.level = 1
+    gb.keyDown = ""
+    gb.bricksRects,gb.bricks = gb.createBricks(4,2,2)
 def createRandoms(randoms):
     rands = []
     for i in range(randoms):
