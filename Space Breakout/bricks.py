@@ -22,7 +22,7 @@ def main():
     pygame.display.set_caption("Bricks")
     pygame.mouse.set_visible(0)
     #kleuren voordien instellen
-    black = pygame.Color(0,0,0)
+    black = pygame.Color(0,0,0) 
     white = pygame.Color(255,255,255)
     #Lijst van Dynamische Variabelen
     showMenu = True     #Toont MENU DISPsLAY
@@ -333,7 +333,7 @@ def main():
                     mainSurface.blit(upgradeGeel,(u[-2].topleft))
                 elif(u[-1]==3):
                     mainSurface.blit(upgradeSleutel,(u[-2].topleft))
-                u[-2].topleft = (u[-2][0],u[-2][1]+ballSpeed-1) #upgrades naar beneden laten vallen, speed = 2
+                u[-2].topleft = (u[-2][0],u[-2][1]+ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
                 if changeBat:
                     if(batLangRect.colliderect(u[-2]) and u[-1]==1):
                         del(upgradeRectList[upgradeRectList.index(u)])
@@ -376,14 +376,11 @@ def main():
                     by = HEIGHT-24
                 sy *= -1
                 ballServed = False
-                if changeBat:
-                    bx,by = (mouseX-int(ballRect[2]/2),playerY-batLangRect[3])
-                elif not changeBat:
-                    bx,by = (mouseX-int(ballRect[2]/2),playerY-batRect[3])
                 if changeBall:
                     changeBall = False
                 scoreTemp = 0
-                ballRect.topleft = (bx,by)
+                bx,by = (batRect[0]+int((batRect[2]/2)-ballRect[2]/2),playerY-ballRect[3])
+                ballRect.topleft = bx,by
                 lives -= 1
                 if lives == 0:
                     levelsPlaying = False
