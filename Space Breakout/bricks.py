@@ -1,11 +1,14 @@
 import pygame, os, sys
 from pygame import *
 import random as r
+import pyautogui
 #GLOBALE  VARIABELEN
 def main():
     pygame.init()
+    pygame.display.set_mode((0,0))
     pygame.display.set_caption("Bricks")
-    pygame.mouse.set_visible(0)
+    if not gb.useAI:
+        pygame.mouse.set_visible(0)
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
     # events
     gb.menuSurface.fill(gb.black)
@@ -36,6 +39,7 @@ def main():
         #setup upgrades
         gb.bricksRects,gb.bricks = createBricks(4,2,2) #aatalSpecialeBricks
         while gb.levelsPlaying:
+            print(gb.by,pyautogui.position() )
             #backgrouns scrolling
             if (gb.level%4) == 0:
                 relatief_Y = gb.yBg % gb.bg1.get_rect().height
@@ -50,7 +54,7 @@ def main():
             if (gb.level%4) == 2:
                 relatief_Y = gb.yBg % gb.bg3.get_rect().height
                 gb.mainSurface.blit(gb.bg3,(0,relatief_Y - gb.bg3.get_rect().height))
-                if relatief_Y < gb.HEIGHT: 
+                if relatief_Y < gb.HEIGHT:
                     gb.mainSurface.blit(gb.bg3, (0,relatief_Y))
             if (gb.level%4) == 3:
                 relatief_Y = gb.yBg % gb.bg4.get_rect().height
