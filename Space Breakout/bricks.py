@@ -151,9 +151,9 @@ def main():
                     if gb.DEVELOPER_TOOLS:
                         if event.key == pygame.K_RETURN:
                             if gb.showCheatKeys:
-                                showCheatKeys = False
+                                gb.showCheatKeys = False
                             else:
-                                showCheatKeys = True
+                                gb.showCheatKeys = True
                         if event.key == pygame.K_1:
                             gb.scoreTemp +=1
                         if event.key == pygame.K_2:
@@ -191,16 +191,16 @@ def main():
                         else:
                             gb.batLangRect.topleft = (0,gb.playerY)
                         if not gb.ballServed:
-                                bx,by = (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                                gb.ballRect.topleft = (bx,by)
+                                gb.bx,gb.by = (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
+                                gb.ballRect.topleft = (gb.bx,gb.by)
                     elif not gb.changeBat:
                         if gb.batRect[0] > 0:
                             gb.batRect.topleft = (gb.batRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
                         else:
                             gb.batRect.topleft = (0,gb.playerY)
                         if not gb.ballServed:
-                            bx,by = (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                            gb.ballRect.topleft = (bx,by)
+                            gb.bx,gb.by = (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+                            gb.ballRect.topleft = (gb.bx,gb.by)
                 if gb.keyDown == "K_RIGHT":
                     if gb.changeBat:
                         if gb.batLangRect[0] < gb.WIDTH-gb.batLangRect[2]:
@@ -208,16 +208,16 @@ def main():
                         else:
                             gb.batLangRect.topleft = (gb.WIDTH-gb.batLangRect[2],gb.playerY)
                         if not gb.ballServed:
-                            bx,by = (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                            gb.ballRect.topleft = (bx,by)
+                            gb.bx,gb.by = (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
+                            gb.ballRect.topleft = (gb.bx,gb.by)
                     elif not gb.changeBat:
                         if gb.batRect[0] < gb.WIDTH-gb.batRect[2]:
                             gb.batRect.topleft = (gb.batRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
                         else:
                             gb.batRect.topleft = (gb.WIDTH-gb.batRect[2],gb.playerY)
                         if not gb.ballServed:
-                            bx,by = (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                            gb.ballRect.topleft = (bx,by)
+                            gb.bx,gb.by = (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+                            gb.ballRect.topleft = (gb.bx,gb.by)
             if gb.changeBat:
                 gb.mainSurface.blit(gb.batLangSprite, gb.batLangRect)
             if not gb.changeBat:
@@ -317,7 +317,7 @@ def main():
             if not gb.changeBall:
                 gb.mainSurface.blit(gb.ballSprite, gb.ballRect)
             else:
-                gb.ballBigRect.gb.topleft = (gb.bx,gb.by)
+                gb.ballBigRect.topleft = (gb.bx,gb.by)
                 gb.mainSurface.blit(gb.ballBigSprite,gb.ballBigRect)
             # hoofdlogicad
             # botsingen detecteren
@@ -424,9 +424,9 @@ def main():
             opnieuwText = gb.fontobj.render("Druk SPATIE voor opnieuw te spelen", True, gb.white,None)
             afsluitText = gb.fontobj.render("Druk ESC voor af te sluiten", True, gb.white,None)
             gb.gameOverSurface.blit(gb.gameOverBg,(0,0))
-            gb.gameOverSurface.blit(gb.eindScore,(400-int(eindScore.get_width()/2),50))
-            gb.gameOverSurface.blit(gb.opnieuwText,(400-int(opnieuwText.get_width()/2),500))
-            gb.gameOverSurface.blit(gb.afsluitText,(400-int(afsluitText.get_width()/2),550))
+            gb.gameOverSurface.blit(eindScore,(400-int(eindScore.get_width()/2),50))
+            gb.gameOverSurface.blit(opnieuwText,(400-int(opnieuwText.get_width()/2),500))
+            gb.gameOverSurface.blit(afsluitText,(400-int(afsluitText.get_width()/2),550))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
