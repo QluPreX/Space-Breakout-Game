@@ -7,8 +7,7 @@ def main():
     pygame.init()
     pygame.display.set_mode((0,0))
     pygame.display.set_caption("Bricks")
-    if not gb.useAI:
-        pygame.mouse.set_visible(0)
+    pygame.mouse.set_visible(0)
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
     # events
     gb.menuSurface.fill(gb.black)
@@ -39,29 +38,8 @@ def main():
         #setup upgrades
         gb.bricksRects,gb.bricks = createBricks(4,2,2) #aatalSpecialeBricks
         while gb.levelsPlaying:
-            print(gb.by,pyautogui.position() )
             #backgrouns scrolling
-            if (gb.level%4) == 0:
-                relatief_Y = gb.yBg % gb.bg1.get_rect().height
-                gb.mainSurface.blit(gb.bg1,(0,relatief_Y - gb.bg1.get_rect().height))
-                if relatief_Y < gb.HEIGHT:
-                    gb.mainSurface.blit(gb.bg1, (0,relatief_Y))
-            if (gb.level%4) == 1:
-                relatief_Y = gb.yBg % gb.bg2.get_rect().height
-                gb.mainSurface.blit(gb.bg2,(0,relatief_Y - gb.bg2.get_rect().height))
-                if relatief_Y < gb.HEIGHT:
-                    gb.mainSurface.blit(gb.bg2, (0,relatief_Y))
-            if (gb.level%4) == 2:
-                relatief_Y = gb.yBg % gb.bg3.get_rect().height
-                gb.mainSurface.blit(gb.bg3,(0,relatief_Y - gb.bg3.get_rect().height))
-                if relatief_Y < gb.HEIGHT:
-                    gb.mainSurface.blit(gb.bg3, (0,relatief_Y))
-            if (gb.level%4) == 3:
-                relatief_Y = gb.yBg % gb.bg4.get_rect().height
-                gb.mainSurface.blit(gb.bg4,(0,relatief_Y - gb.bg4.get_rect().height))
-                if relatief_Y < gb.HEIGHT:
-                    gb.mainSurface.blit(gb.bg4, (0,relatief_Y))
-            gb.yBg += 1
+            setDynamicBackground()
             #levens
             for i in range(gb.lives): #3 levens = 0,1,2
                 x,y = ((gb.heartRect[2]*i)+5,5)
@@ -102,27 +80,7 @@ def main():
                     if not gb.ballServed:
                         gb.ballServed = True
                 elif event.type == pygame.MOUSEMOTION:
-                    gb.mouseX = event.pos[0] #mousex = X positie van de muis
-                    if(gb.mouseX < gb.WIDTH or gb.mouseX <= 0 ):#
-                        if gb.changeBat:
-                            gb.batLangRect.topleft = (gb.mouseX-int(gb.batLangRect[2]/2),gb.playerY)
-                            gb.ballRect.topleft = (gb.batLangRect[2]/2,gb.playerY)
-                        elif not gb.changeBat:
-                            gb.batRect.topleft = (gb.mouseX-int(gb.batRect[2]/2),gb.playerY)
-                            gb.ballRect.topleft = (gb.batRect[2]/2,gb.playerY)
-                    if not gb.ballServed:
-                        if gb.changeBat:
-                            if gb.changeBall:
-                                gb.bx,gb.by = (gb.mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batLangRect[3])
-                            elif not gb.changeBall:
-                                gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                            gb.ballRect.topleft = (gb.bx,gb.by)
-                        elif not gb.changeBat:
-                            if gb.changeBall:
-                                gb.bx,gb.by = (gb.mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batRect[3])
-                            elif not gb.changeBall:
-                                gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                            gb.ballRect.topleft = (gb.bx,gb.by)
+                    checkMouseEvents(event)
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
                         gb.keyDown = "K_LEFT"
@@ -530,13 +488,13 @@ class gb():
     brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
 
-def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level = gb.level,height = gb.HEIGHT, width = gb.WIDTH):
-    rands = specials1PerLevel*level
-    rands2 = specials2PeLevel*level
+def createBricks(specials1PerLevel,specials2PeLevel,sleutels,height = gb.HEIGHT, width = gb.WIDTH):
+    rands = specials1PerLevel*gb.level
+    rands2 = specials2PeLevel*gb.level
     rands3 = sleutels
     bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
-    YrangeVoorX,YrangeVoorY = 3+level,6+level
-    XrangeVoorX,XrangeVoorY = 4+level,8+level
+    YrangeVoorX,YrangeVoorY = 4+gb.level,8+gb.level
+    XrangeVoorX,XrangeVoorY = 5+gb.level,9+gb.level
     if(YrangeVoorY >= 20):
         YrangeVoorX,YrangeVoorY = 13,20
     if (XrangeVoorY >= 16):
@@ -553,10 +511,10 @@ def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level = gb.level,he
         brickY = (y * 16) -100 + ((height-(yRange*16))/2)
         for x in range(xRange):
             brickX = (x*48) + ((width-(xRange*48))/2)
-            if level >= 10:
+            if gb.level >= 10:
                 tekenkansY = r.randrange(0,2)
             else:
-                tekenkansY = r.randrange(0,12-level)
+                tekenkansY = r.randrange(0,12-gb.level)
             if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
                 if (x,y) in randomIndex3:
                     bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
@@ -567,6 +525,7 @@ def createBricks(specials1PerLevel,specials2PeLevel,sleutels,level = gb.level,he
                 else:
                     bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
                 bricksRectsTemp.append(Rect(brickX,brickY,48,16))
+    print(YrangeVoorX,YrangeVoorY, ":",XrangeVoorX,XrangeVoorY )
     return bricksRectsTemp,bricksTemp
 def resetForNewGame():
     gb.gameOverMenu = False
@@ -586,7 +545,50 @@ def createRandoms(randoms):
     for i in range(randoms):
         rands.append(r.randrange(1,10))
     return rands
-
+def checkMouseEvents(event):
+    gb.mouseX = event.pos[0] #mousex = X positie van de muis
+    if(gb.mouseX < gb.WIDTH or gb.mouseX <= 0 ):#
+        if gb.changeBat:
+            gb.batLangRect.topleft = (gb.mouseX-int(gb.batLangRect[2]/2),gb.playerY)
+            gb.ballRect.topleft = (gb.batLangRect[2]/2,gb.playerY)
+        elif not gb.changeBat:
+            gb.batRect.topleft = (gb.mouseX-int(gb.batRect[2]/2),gb.playerY)
+            gb.ballRect.topleft = (gb.batRect[2]/2,gb.playerY)
+    if not gb.ballServed:
+        if gb.changeBat:
+            if gb.changeBall:
+                gb.bx,gb.by = (gb.mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batLangRect[3])
+            elif not gb.changeBall:
+                gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
+            gb.ballRect.topleft = (gb.bx,gb.by)
+        elif not gb.changeBat:
+            if gb.changeBall:
+                gb.bx,gb.by = (gb.mouseX-int(gb.ballBigRect[2]/2),gb.playerY-gb.batRect[3])
+            elif not gb.changeBall:
+                gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+            gb.ballRect.topleft = (gb.bx,gb.by)
+def setDynamicBackground():
+    if (gb.level%4) == 0:
+        relatief_Y = gb.yBg % gb.bg1.get_rect().height
+        gb.mainSurface.blit(gb.bg1,(0,relatief_Y - gb.bg1.get_rect().height))
+        if relatief_Y < gb.HEIGHT:
+            gb.mainSurface.blit(gb.bg1, (0,relatief_Y))
+    if (gb.level%4) == 1:
+        relatief_Y = gb.yBg % gb.bg2.get_rect().height
+        gb.mainSurface.blit(gb.bg2,(0,relatief_Y - gb.bg2.get_rect().height))
+        if relatief_Y < gb.HEIGHT:
+            gb.mainSurface.blit(gb.bg2, (0,relatief_Y))
+    if (gb.level%4) == 2:
+        relatief_Y = gb.yBg % gb.bg3.get_rect().height
+        gb.mainSurface.blit(gb.bg3,(0,relatief_Y - gb.bg3.get_rect().height))
+        if relatief_Y < gb.HEIGHT:
+            gb.mainSurface.blit(gb.bg3, (0,relatief_Y))
+    if (gb.level%4) == 3:
+        relatief_Y = gb.yBg % gb.bg4.get_rect().height
+        gb.mainSurface.blit(gb.bg4,(0,relatief_Y - gb.bg4.get_rect().height))
+        if relatief_Y < gb.HEIGHT:
+            gb.mainSurface.blit(gb.bg4, (0,relatief_Y))
+    gb.yBg += 1
 if __name__ == '__main__':
 
     main()
