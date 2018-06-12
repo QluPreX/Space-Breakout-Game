@@ -1,7 +1,6 @@
 import pygame, os, sys
 from pygame import *
 import random as r
-import pyautogui
 #GLOBALE  VARIABELEN
 def main():
     pygame.init()
@@ -27,6 +26,7 @@ def main():
                 if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
                     gb.showMenu = False
                     gb.levelsPlaying = True
+            drawMultipleLines()
             gb.menuSurface.blit(gb.bgMain,(0,0))
             gb.menuSurface.blit(welkomLabel,(400-int(welkomLabel.get_width()/2),50))
             gb.menuSurface.blit(uitlegLijn1Label,(400-int(uitlegLijn1Label.get_width()/2),150))
@@ -36,7 +36,7 @@ def main():
             gb.FPSCLOCK.tick(10)
         gb.mainSurface.fill(gb.black)
         #setup upgrades
-        gb.bricksRects,gb.bricks = gb.createBricks(4,2,2) #aatalSpecialeBricks
+        gb.bricksRects,gb.bricks = createBricks(4,2,2) #aatalSpecialeBricks
         while gb.levelsPlaying:
             #backgrouns scrolling
             setDynamicBackground()
@@ -50,22 +50,7 @@ def main():
             LevelindicatorLabel = gb.fontobj.render("Level:"+str(gb.level),True,gb.white,None)
             gb.mainSurface.blit(scoreLabel,(gb.WIDTH-scoreLabel.get_width()-5,5))
             if gb.DEVELOPER_TOOLS and gb.showCheatKeys:
-                cheatKeysLabel1 = gb.fontCheatKeys.render("key 1:..increase combo score",True,gb.white,None)
-                cheatKeysLabel2 = gb.fontCheatKeys.render("key 2:..................delete steen",True,gb.white,None)
-                cheatKeysLabel3 = gb.fontCheatKeys.render("key 3:.................volgend level",True,gb.white,None)
-                cheatKeysLabel4 = gb.fontCheatKeys.render("key 4:....................extra leven",True,gb.white,None)
-                cheatKeysLabel5 = gb.fontCheatKeys.render("key 5:.............maak bal groot",True,gb.white,None)
-                cheatKeysLabel6 = gb.fontCheatKeys.render("key 6:........maak player groot",True,gb.white,None)
-                cheatKeysLabel7 = gb.fontCheatKeys.render("key 7:........increase ball speed",True,gb.white,None)
-                cheatKeysLabel8 = gb.fontCheatKeys.render("key ENTER:..........Keys Menu",True,gb.white,None)
-                gb.mainSurface.blit(cheatKeysLabel1,(gb.WIDTH-cheatKeysLabel1.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*1))
-                gb.mainSurface.blit(cheatKeysLabel2,(gb.WIDTH-cheatKeysLabel2.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*2))
-                gb.mainSurface.blit(cheatKeysLabel3,(gb.WIDTH-cheatKeysLabel3.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*3))
-                gb.mainSurface.blit(cheatKeysLabel4,(gb.WIDTH-cheatKeysLabel4.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*4))
-                gb.mainSurface.blit(cheatKeysLabel5,(gb.WIDTH-cheatKeysLabel5.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*5))
-                gb.mainSurface.blit(cheatKeysLabel6,(gb.WIDTH-cheatKeysLabel6.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*6))
-                gb.mainSurface.blit(cheatKeysLabel7,(gb.WIDTH-cheatKeysLabel7.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*7))
-                gb.mainSurface.blit(cheatKeysLabel8,(gb.WIDTH-cheatKeysLabel8.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*8))
+
             if gb.scoreTemp > 4 and gb.changeBall:
                 gb.mainSurface.blit(scoreComboLabel,(400-int(scoreComboLabel.get_width()/2),6))
             if gb.scoreTemp > 2 and not gb.changeBall:
@@ -110,8 +95,8 @@ def main():
                                     gb.bx,gb.by = (gb.batRect[0]-int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                                     gb.ballRect.topleft = (gb.bx,gb.by)
                                 gb.batRect.topleft = (gb.batRect[0]+20,gb.playerY)
-                        if(gb.DEVELOPER_TOOLS):
-                            gb.showCheatMenu(event)
+                    if(gb.DEVELOPER_TOOLS):
+                        showCheatMenu(event)
                     if event.key == pygame.K_SPACE:
                         if not gb.ballServed:
                             gb.ballServed = True
@@ -352,7 +337,7 @@ def main():
                         gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                         gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
                         gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
-                        gb.bricksRects,bricks = gb.createBricks(4,2,2)
+                        gb.bricksRects,bricks = createBricks(4,2,2)
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
@@ -461,72 +446,72 @@ class gb():
     brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
     brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
-    def createBricks(self,specials1PerLevel,specials2PerLevel,sleutels, lvl = level,height = HEIGHT, width = WIDTH):
-        rands = specials1PerLevel*lvl
-        rands2 = specials2PerLevel*lvl
-        rands3 = sleutels
-        bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
-        YrangeVoorX,YrangeVoorY = 4+lvl,8+lvl
-        XrangeVoorX,XrangeVoorY = 5+lvl,9+lvl
-        if(YrangeVoorY >= 20):
-            YrangeVoorX,YrangeVoorY = 13,20
-        if (XrangeVoorY >= 16):
-            XrangeVoorX,XrangeVoorY = 13,16
-        yRange = r.randrange(YrangeVoorX,YrangeVoorY)
-        xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
-        for i in range(rands):
-            randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
-        for i in range(rands2):
-            randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
-        for i in range(rands3):
-            randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
-        for y in range(yRange):
-            brickY = (y * 16) -100 + ((height-(yRange*16))/2)
-            for x in range(xRange):
-                brickX = (x*48) + ((width-(xRange*48))/2)
-                if lvl >= 10:
-                    tekenkansY = r.randrange(0,2)
-                else:
-                    tekenkansY = r.randrange(0,12-lvl)
-                if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
-                    if (x,y) in randomIndex3:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
-                    elif (x,y) in randomIndex2:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
-                    elif(x,y) in randomIndex1:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
-                    else:
-                        bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
-                    bricksRectsTemp.append(Rect(brickX,brickY,48,16))
-        print(YrangeVoorX,YrangeVoorY, ":",XrangeVoorX,XrangeVoorY )
-        return bricksRectsTemp,bricksTemp
-    def showCheatMenu(self,event):
-        if event.key == pygame.K_RETURN:
-            if showCheatKeys:
-                showCheatKeys = False
+def createBricks(specials1PerLevel,specials2PerLevel,sleutels, lvl = gb.level,height = gb.HEIGHT, width = gb.WIDTH):
+    rands = specials1PerLevel*lvl
+    rands2 = specials2PerLevel*lvl
+    rands3 = sleutels
+    bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
+    YrangeVoorX,YrangeVoorY = 4+lvl,8+lvl
+    XrangeVoorX,XrangeVoorY = 5+lvl,9+lvl
+    if(YrangeVoorY >= 20):
+        YrangeVoorX,YrangeVoorY = 13,20
+    if (XrangeVoorY >= 16):
+        XrangeVoorX,XrangeVoorY = 13,16
+    yRange = r.randrange(YrangeVoorX,YrangeVoorY)
+    xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
+    for i in range(rands):
+        randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
+    for i in range(rands2):
+        randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
+    for i in range(rands3):
+        randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
+    for y in range(yRange):
+        brickY = (y * 16) -100 + ((height-(yRange*16))/2)
+        for x in range(xRange):
+            brickX = (x*48) + ((width-(xRange*48))/2)
+            if lvl >= 10:
+                tekenkansY = r.randrange(0,2)
             else:
-                showCheatKeys = True
-        if event.key == pygame.K_1:
-            scoreTemp +=1
-        if event.key == pygame.K_2:
-            del bricksRects[0]
-            scoreTemp += 1
-        if event.key == pygame.K_3:
-            del(bricksRects[:])
-        if event.key == pygame.K_4:
-            if(lives < maxLives):
-                lives += 1
-        if event.key == pygame.K_5:
-            changeBall = True
-        if event.key == pygame.K_6:
-            changeBat = True
-        if event.key == pygame.K_7:
-            if ballSpeed < ballMaxSpeed:
-                ballSpeed += 1
-                if sx < 0 and sy < 0:
-                    sx,sy = (ballSpeed,ballSpeed)
-                elif sx > 0 and sy > 0:
-                    sx,sy = (gb.ballSpeed,ballSpeed)
+                tekenkansY = r.randrange(0,12-lvl)
+            if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
+                if (x,y) in randomIndex3:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
+                elif (x,y) in randomIndex2:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
+                elif(x,y) in randomIndex1:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
+                else:
+                    bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
+                bricksRectsTemp.append(Rect(brickX,brickY,48,16))
+    print(YrangeVoorX,YrangeVoorY, ":",XrangeVoorX,XrangeVoorY )
+    return bricksRectsTemp,bricksTemp
+def showCheatMenu(event):
+    if event.key == pygame.K_RETURN:
+        if gb.showCheatKeys:
+            gb.showCheatKeys = False
+        else:
+            gb.showCheatKeys = True
+    if event.key == pygame.K_1:
+        gb.scoreTemp +=1
+    if event.key == pygame.K_2:
+        del gb.bricksRects[0]
+        gb.scoreTemp += 1
+    if event.key == pygame.K_3:
+        del(gb.bricksRects[:])
+    if event.key == pygame.K_4:
+        if(gb.lives < gb.maxLives):
+            gb.lives += 1
+    if event.key == pygame.K_5:
+        gb.changeBall = True
+    if event.key == pygame.K_6:
+        gb.changeBat = True
+    if event.key == pygame.K_7:
+        if gb.ballSpeed < gb.ballMaxSpeed:
+            gb.ballSpeed += 1
+            if gb.sx < 0 and gb.sy < 0:
+                gb.sx,gb.sy = (gb.ballSpeed,gb.ballSpeed)
+            elif gb.sx > 0 and gb.sy > 0:
+                gb.sx,gb.sy = (gb.ballSpeed,gb.ballSpeed)
 def resetForNewGame():
     gb.gameOverMenu = False
     gb.levelsPlaying = True
@@ -539,7 +524,7 @@ def resetForNewGame():
     gb.sx,gb.y = (gb.ballSpeed,gb.ballSpeed)
     gb.level = 1
     gb.keyDown = ""
-    gb.bricksRects,gb.bricks = gb.createBricks(4,2,2)
+    gb.bricksRects,gb.bricks = createBricks(4,2,2)
 def createRandoms(randoms):
     rands = []
     for i in range(randoms):
@@ -589,6 +574,27 @@ def setDynamicBackground():
         if relatief_Y < gb.HEIGHT:
             gb.mainSurface.blit(gb.bg4, (0,relatief_Y))
     gb.yBg += 1
+def drawMultipleLines(stringArray,color):
+    for string in stringArray:
+        stringLabel = gb.fontCheatKeys.render(string,True,color,None)
+        gb.mainSurface.blit(stringLabel,(gb.WIDTH-string.get_width(),gb.HEIGHT-string.get_height()*))
+
+    cheatKeysLabel1 = gb.fontCheatKeys.render("key 1:..increase combo score",True,gb.white,None)
+    cheatKeysLabel2 = gb.fontCheatKeys.render("key 2:..................delete steen",True,gb.white,None)
+    cheatKeysLabel3 = gb.fontCheatKeys.render("key 3:.................volgend level",True,gb.white,None)
+    cheatKeysLabel4 = gb.fontCheatKeys.render("key 4:....................extra leven",True,gb.white,None)
+    cheatKeysLabel5 = gb.fontCheatKeys.render("key 5:.............maak bal groot",True,gb.white,None)
+    cheatKeysLabel6 = gb.fontCheatKeys.render("key 6:........maak player groot",True,gb.white,None)
+    cheatKeysLabel7 = gb.fontCheatKeys.render("key 7:........increase ball speed",True,gb.white,None)
+    cheatKeysLabel8 = gb.fontCheatKeys.render("key ENTER:..........Keys Menu",True,gb.white,None)
+    gb.mainSurface.blit(cheatKeysLabel1,(gb.WIDTH-cheatKeysLabel1.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*1))
+    gb.mainSurface.blit(cheatKeysLabel2,(gb.WIDTH-cheatKeysLabel2.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*2))
+    gb.mainSurface.blit(cheatKeysLabel3,(gb.WIDTH-cheatKeysLabel3.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*3))
+    gb.mainSurface.blit(cheatKeysLabel4,(gb.WIDTH-cheatKeysLabel4.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*4))
+    gb.mainSurface.blit(cheatKeysLabel5,(gb.WIDTH-cheatKeysLabel5.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*5))
+    gb.mainSurface.blit(cheatKeysLabel6,(gb.WIDTH-cheatKeysLabel6.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*6))
+    gb.mainSurface.blit(cheatKeysLabel7,(gb.WIDTH-cheatKeysLabel7.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*7))
+    gb.mainSurface.blit(cheatKeysLabel8,(gb.WIDTH-cheatKeysLabel8.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*8))
 if __name__ == '__main__':
 
     main()
