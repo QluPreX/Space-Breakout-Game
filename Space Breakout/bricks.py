@@ -36,7 +36,7 @@ def main():
             gb.FPSCLOCK.tick(10)
         gb.mainSurface.fill(gb.black)
         #setup upgrades
-        gb.bricksRects,gb.bricks = createBricks(4,2,2) #aatalSpecialeBricks
+        gb.bricksRects,gb.bricks = gb.createBricks(4,2,2) #aatalSpecialeBricks
         while gb.levelsPlaying:
             #backgrouns scrolling
             setDynamicBackground()
@@ -110,33 +110,8 @@ def main():
                                     gb.bx,gb.by = (gb.batRect[0]-int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                                     gb.ballRect.topleft = (gb.bx,gb.by)
                                 gb.batRect.topleft = (gb.batRect[0]+20,gb.playerY)
-                    if gb.DEVELOPER_TOOLS:
-                        if event.key == pygame.K_RETURN:
-                            if gb.showCheatKeys:
-                                gb.showCheatKeys = False
-                            else:
-                                gb.showCheatKeys = True
-                        if event.key == pygame.K_1:
-                            gb.scoreTemp +=1
-                        if event.key == pygame.K_2:
-                            del gb.bricksRects[0]
-                            gb.scoreTemp += 1
-                        if event.key == pygame.K_3:
-                            del(gb.bricksRects[:])
-                        if event.key == pygame.K_4:
-                            if(gb.lives < gb.maxLives):
-                                gb.lives += 1
-                        if event.key == pygame.K_5:
-                            gb.changeBall = True
-                        if event.key == pygame.K_6:
-                            gb.changeBat = True
-                        if event.key == pygame.K_7:
-                            if gb.ballSpeed < gb.ballMaxSpeed:
-                                gb.ballSpeed += 1
-                                if gb.sx < 0 and gb.sy < 0:
-                                    gb.sx,gb.sy = (gb.ballSpeed,gb.ballSpeed)
-                                elif gb.sx > 0 and gb.sy > 0:
-                                    gb.sx,gb.sy = (gb.ballSpeed,gb.ballSpeed)
+                        if(gb.DEVELOPER_TOOLS):
+                            gb.showCheatMenu(event)
                     if event.key == pygame.K_SPACE:
                         if not gb.ballServed:
                             gb.ballServed = True
@@ -377,7 +352,7 @@ def main():
                         gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                         gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
                         gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
-                        gb.bricksRects,bricks = createBricks(4,2,2)
+                        gb.bricksRects,bricks = gb.createBricks(4,2,2)
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
@@ -437,7 +412,6 @@ class gb():
     keyDown = None
     #arrays
     upgradeRectList = []
-
     FPSCLOCK = pygame.time.Clock()
     #initiatleer DISPLAYS
     mainSurface = pygame.display.set_mode((WIDTH,HEIGHT))
@@ -487,46 +461,72 @@ class gb():
     brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
     brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
-
-def createBricks(specials1PerLevel,specials2PeLevel,sleutels,height = gb.HEIGHT, width = gb.WIDTH):
-    rands = specials1PerLevel*gb.level
-    rands2 = specials2PeLevel*gb.level
-    rands3 = sleutels
-    bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
-    YrangeVoorX,YrangeVoorY = 4+gb.level,8+gb.level
-    XrangeVoorX,XrangeVoorY = 5+gb.level,9+gb.level
-    if(YrangeVoorY >= 20):
-        YrangeVoorX,YrangeVoorY = 13,20
-    if (XrangeVoorY >= 16):
-        XrangeVoorX,XrangeVoorY = 13,16
-    yRange = r.randrange(YrangeVoorX,YrangeVoorY)
-    xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
-    for i in range(rands):
-        randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
-    for i in range(rands2):
-        randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
-    for i in range(rands3):
-        randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
-    for y in range(yRange):
-        brickY = (y * 16) -100 + ((height-(yRange*16))/2)
-        for x in range(xRange):
-            brickX = (x*48) + ((width-(xRange*48))/2)
-            if gb.level >= 10:
-                tekenkansY = r.randrange(0,2)
-            else:
-                tekenkansY = r.randrange(0,12-gb.level)
-            if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
-                if (x,y) in randomIndex3:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
-                elif (x,y) in randomIndex2:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
-                elif(x,y) in randomIndex1:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
+    def createBricks(self,specials1PerLevel,specials2PerLevel,sleutels, lvl = level,height = HEIGHT, width = WIDTH):
+        rands = specials1PerLevel*lvl
+        rands2 = specials2PerLevel*lvl
+        rands3 = sleutels
+        bricksTemp,bricksRectsTemp,randomIndex1,randomIndex2,randomIndex3 = [],[],[],[],[]
+        YrangeVoorX,YrangeVoorY = 4+lvl,8+lvl
+        XrangeVoorX,XrangeVoorY = 5+lvl,9+lvl
+        if(YrangeVoorY >= 20):
+            YrangeVoorX,YrangeVoorY = 13,20
+        if (XrangeVoorY >= 16):
+            XrangeVoorX,XrangeVoorY = 13,16
+        yRange = r.randrange(YrangeVoorX,YrangeVoorY)
+        xRange = r.randrange(XrangeVoorX,XrangeVoorY) #max 16
+        for i in range(rands):
+            randomIndex1.append((r.randrange(xRange),r.randrange(yRange)))
+        for i in range(rands2):
+            randomIndex2.append((r.randrange(xRange),r.randrange(yRange)))
+        for i in range(rands3):
+            randomIndex3.append((r.randrange(xRange),r.randrange(yRange)))
+        for y in range(yRange):
+            brickY = (y * 16) -100 + ((height-(yRange*16))/2)
+            for x in range(xRange):
+                brickX = (x*48) + ((width-(xRange*48))/2)
+                if lvl >= 10:
+                    tekenkansY = r.randrange(0,2)
                 else:
-                    bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
-                bricksRectsTemp.append(Rect(brickX,brickY,48,16))
-    print(YrangeVoorX,YrangeVoorY, ":",XrangeVoorX,XrangeVoorY )
-    return bricksRectsTemp,bricksTemp
+                    tekenkansY = r.randrange(0,12-lvl)
+                if tekenkansY != 0 or (x,y) in randomIndex3: #100% kans voor 2 sleutels
+                    if (x,y) in randomIndex3:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),3)) #brick_sleutel
+                    elif (x,y) in randomIndex2:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),2)) #brick_geel
+                    elif(x,y) in randomIndex1:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),1)) #brick_blauw
+                    else:
+                        bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
+                    bricksRectsTemp.append(Rect(brickX,brickY,48,16))
+        print(YrangeVoorX,YrangeVoorY, ":",XrangeVoorX,XrangeVoorY )
+        return bricksRectsTemp,bricksTemp
+    def showCheatMenu(self,event):
+        if event.key == pygame.K_RETURN:
+            if showCheatKeys:
+                showCheatKeys = False
+            else:
+                showCheatKeys = True
+        if event.key == pygame.K_1:
+            scoreTemp +=1
+        if event.key == pygame.K_2:
+            del bricksRects[0]
+            scoreTemp += 1
+        if event.key == pygame.K_3:
+            del(bricksRects[:])
+        if event.key == pygame.K_4:
+            if(lives < maxLives):
+                lives += 1
+        if event.key == pygame.K_5:
+            changeBall = True
+        if event.key == pygame.K_6:
+            changeBat = True
+        if event.key == pygame.K_7:
+            if ballSpeed < ballMaxSpeed:
+                ballSpeed += 1
+                if sx < 0 and sy < 0:
+                    sx,sy = (ballSpeed,ballSpeed)
+                elif sx > 0 and sy > 0:
+                    sx,sy = (gb.ballSpeed,ballSpeed)
 def resetForNewGame():
     gb.gameOverMenu = False
     gb.levelsPlaying = True
