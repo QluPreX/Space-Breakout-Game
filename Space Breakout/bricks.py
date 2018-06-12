@@ -337,7 +337,7 @@ def main():
                         gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                         gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
                         gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
-                        gb.bricksRects,bricks = createBricks(4,2,2)
+                        gb.bricksRects,gb.bricks = gb.createBricks(4,2,2)
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
