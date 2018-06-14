@@ -61,79 +61,14 @@ def main():
                 elif event.type == pygame.MOUSEMOTION:
                     checkMouseEvents(event)
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        gb.keyDown = "K_LEFT"
-                        if gb.changeBat:
-                            if gb.batLangRect[0] > 0:
-                                if not gb.ballServed:
-                                    gb.bx,gb.by = (gb.batLangRect[0]-int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                                    gb.ballRect.topleft = (gb.bx,gb.by)
-                                gb.batLangRect.topleft = (gb.batLangRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
-                        elif not gb.changeBat:
-                            if gb.batRect[0] > 0:
-                                if not gb.ballServed:
-                                    gb.bx,gb.by = (gb.batRect[0]-int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                                    gb.ballRect.topleft = (gb.bx,gb.by)
-                                gb.batRect.topleft = (gb.batRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
-                    if event.key == pygame.K_RIGHT:
-                        gb.keyDown = "K_RIGHT"
-                        if gb.changeBat:
-                            if gb.batLangRect[0] < gb.WIDTH-gb.batLangRect[2]:
-                                if not gb.ballServed:
-                                    gb.bx,gb.by = (gb.batLangRect[0]-int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                                    gb.ballRect.topleft = (gb.bx,gb.by)
-                                gb.batLangRect.topleft = (gb.batLangRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
-                        elif not gb.changeBat:
-                            if gb.batRect[0] < gb.WIDTH-gb.batRect[2]:
-                                if not gb.ballServed:
-                                    gb.bx,gb.by = (gb.batRect[0]-int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                                    gb.ballRect.topleft = (gb.bx,gb.by)
-                                gb.batRect.topleft = (gb.batRect[0]+20,gb.playerY)
-                    if(gb.DEVELOPER_TOOLS):
-                        showCheatMenu(event)
-                    if event.key == pygame.K_SPACE:
-                        if not gb.ballServed:
-                            gb.ballServed = True
+                    checkKeyDownEvents(event)
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and gb.keyDown == "K_LEFT":
                         gb.keyDown = None
                     if event.key == pygame.K_RIGHT and gb.keyDown == "K_RIGHT":
                         gb.keyDown = None
             if gb.keyDown:
-                if gb.keyDown == "K_LEFT":
-                    if gb.changeBat:
-                        if gb.batLangRect[0] > 0:
-                            gb.batLangRect.topleft = (gb.batLangRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
-                        else:
-                            gb.batLangRect.topleft = (0,gb.playerY)
-                        if not gb.ballServed:
-                                gb.bx,gb.by = (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                                gb.ballRect.topleft = (gb.bx,gb.by)
-                    elif not gb.changeBat:
-                        if gb.batRect[0] > 0:
-                            gb.batRect.topleft = (gb.batRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
-                        else:
-                            gb.batRect.topleft = (0,gb.playerY)
-                        if not gb.ballServed:
-                            gb.bx,gb.by = (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                            gb.ballRect.topleft = (gb.bx,gb.by)
-                if gb.keyDown == "K_RIGHT":
-                    if gb.changeBat:
-                        if gb.batLangRect[0] < gb.WIDTH-gb.batLangRect[2]:
-                            gb.batLangRect.topleft = (gb.batLangRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
-                        else:
-                            gb.batLangRect.topleft = (gb.WIDTH-gb.batLangRect[2],gb.playerY)
-                        if not gb.ballServed:
-                            gb.bx,gb.by = (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
-                            gb.ballRect.topleft = (gb.bx,gb.by)
-                    elif not gb.changeBat:
-                        if gb.batRect[0] < gb.WIDTH-gb.batRect[2]:
-                            gb.batRect.topleft = (gb.batRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
-                        else:
-                            gb.batRect.topleft = (gb.WIDTH-gb.batRect[2],gb.playerY)
-                        if not gb.ballServed:
-                            gb.bx,gb.by = (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                            gb.ballRect.topleft = (gb.bx,gb.by)
+                checkKeyHoldingEvents(gb.keyDown)
             if gb.changeBat:
                 gb.mainSurface.blit(gb.batLangSprite, gb.batLangRect)
             if not gb.changeBat:
@@ -143,70 +78,14 @@ def main():
             #teken upgrades
             for u in gb.upgradeRectList:
                 #collision detection
-                if(u[-1]==1):
-                    gb.mainSurface.blit(gb.upgradeBlauw,(u[-2].topleft))
-                elif(u[-1]==2):
-                    gb.mainSurface.blit(gb.upgradeGeel,(u[-2].topleft))
-                elif(u[-1]==3):
-                    gb.mainSurface.blit(gb.upgradeSleutel,(u[-2].topleft))
-                u[-2].topleft = (u[-2][0],u[-2][1]+gb.ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
-                if gb.changeBat:
-                    if(gb.batLangRect.colliderect(u[-2]) and u[-1]==1):
-                        del(gb.upgradeRectList[gb.upgradeRectList.index(u)])
-                        gb.changeBall = True
-                    elif(gb.batLangRect.colliderect(u[-2]) and u[-1]==2):
-                        del(gb.upgradeRectList[gb.upgradeRectList.index(u)])
-                        gb.batLangRect.topleft = gb.batRect.topleft
-                        gb.changeBat = True
-                elif not gb.changeBat:
-                    if(gb.batRect.colliderect(u[-2]) and u[-1]==1):
-                        del(gb.upgradeRectList[gb.upgradeRectList.index(u)])
-                        gb.changeBall = True
-                    elif(gb.batRect.colliderect(u[-2]) and u[-1]==2):
-                        del(gb.upgradeRectList[gb.upgradeRectList.index(u)])
-                        gb.batLangRect.topleft = gb.batRect.topleft
-                        gb.changeBat = True
-                if(gb.batRect.colliderect(u[-2]) and u[-1]==3) or (gb.batLangRect.colliderect(u[-2]) and u[-1]==3):
-                    del(gb.upgradeRectList[gb.upgradeRectList.index(u)])
-                    gb.changeBat = False
-                    gb.levelsPlaying = False
-                    gb.changeLevel = True
-                    gb.score += gb.scoreTemp
-
-                #out of bound detection
-                if(u[-2][1] >= gb.HEIGHT-8):
-                    del(gb.upgradeRectList[gb.upgradeRectList.index(u)])
+                checkBallBrickCollide(u)
             # teken pallet en bal
             if gb.ballServed:
                 gb.bx -= gb.sx
                 gb.by -=gb.sy
                 gb.ballRect.topleft = (gb.bx,gb.by)
                 gb.ballBigRect.topleft = (gb.bx,gb.by)
-            if(gb.by <= 0): #onderkant collide
-                gb.by = 0
-                gb.sy *= -1
-            if(gb.changeBall and gb.by >= gb.HEIGHT-24 ) or (not gb.changeBall and gb.by >= gb.HEIGHT-16):  #bovenkant collide
-                if not gb.changeBall:
-                    gb.by = gb.HEIGHT-16
-                else:
-                    gb.by = gb.HEIGHT-24
-                gb.sy *= -1
-                gb.ballServed = False
-                if gb.changeBall:
-                    gb.changeBall = False
-                gb.scoreTemp = 0
-                gb.bx,gb.by = (gb.batRect[0]+int((gb.batRect[2]/2)-gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
-                gb.ballRect.topleft = gb.bx,gb.by
-                gb.lives -= 1
-                if gb.lives == 0:
-                    gb.levelsPlaying = False
-                    gb.gameOverMenu = True
-            if(gb.bx <= 0):
-                gb.sx *= -1
-                gb.bx = 0
-            if(gb.bx >= gb.WIDTH):
-                gb.sx *= -1
-                gb.bx = gb.WIDTH
+                checkBallCollides()
             if not gb.changeBall:
                 gb.mainSurface.blit(gb.ballSprite, gb.ballRect)
             else:
@@ -214,31 +93,7 @@ def main():
                 gb.mainSurface.blit(gb.ballBigSprite,gb.ballBigRect)
             # hoofdlogicad
             # botsingen detecteren
-            if not gb.changeBall and ((gb.ballRect.colliderect(gb.batRect) and not gb.changeBat)or(gb.ballRect.colliderect(gb.batLangRect) and gb.changeBat)):
-                #botsting met kleine bal
-                pygame.mixer.Sound.play(gb.batBotsingSound)
-                gb.by = gb.playerY-16
-                gb.sy *= -1
-                if gb.scoreTemp >= gb.SCORE_FOR_EXTRA_LIFE and gb.lives < gb.maxLives:
-                    gb.lives += 1
-                gb.score += gb.scoreTemp
-                gb.scoreTemp = 0
-                if gb.changeBat:
-                    gb.batRect.topleft = gb.batLangRect.topleft
-                gb.changeBat = False
-            elif gb.changeBall and ((gb.ballBigRect.colliderect(gb.batRect) and not gb.changeBat)or(gb.ballBigRect.colliderect(gb.batLangRect) and gb.changeBat)):
-                #botsing met grote bal
-                pygame.mixer.Sound.play(gb.batBotsingSound)
-                gb.by = gb.playerY-24
-                gb.sy *= -1
-                gb.changeBall = False
-                if gb.changeBat:
-                    gb.batRect.topleft = gb.batLangRect.topleft
-                gb.changeBat = False
-                if gb.scoreTemp >= gb.SCORE_FOR_EXTRA_LIFE and gb.lives < gb.maxLives:
-                    gb.lives += 1
-                gb.score += gb.scoreTemp*gb.scoreComboMultiplier
-                gb.scoreTemp = 0
+            checkBallBatCollide()
             brickHitIndex = []
             if not gb.changeBall:
                 brickHitIndex = gb.ballRect.collidelist(gb.bricksRects)
@@ -480,10 +335,128 @@ def tekenStenen():
         elif status == "upgradeSleutel":
             index = gb.bricks.index((c,3))
             gb.mainSurface.blit(gb.brickSleutel,gb.bricks[index][-2])
-
-
-
-
-
+def checkKeyDownEvents(event ):
+    if event.key == pygame.K_LEFT:
+        gb.keyDown = "K_LEFT"
+        doKeyLeft()
+    if event.key == pygame.K_RIGHT:
+        gb.keyDown = "K_RIGHT"
+        doKeyRight()
+    if(gb.DEVELOPER_TOOLS):
+        showCheatMenu(event)
+    if event.key == pygame.K_SPACE:
+        if not gb.ballServed:
+            gb.ballServed = True
+def checkKeyHoldingEvents(keyDown):
+    if keyDown == "K_LEFT":
+        doKeyLeft()
+    if keyDown == "K_RIGHT":
+        doKeyRight()
+def doKeyLeft():
+    if gb.changeBat and gb.batLangRect[0] > 0:
+        gb.batLangRect.topleft = (gb.batLangRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
+    elif not gb.changeBat and gb.batRect[0] > 0:
+        gb.batRect.topleft = (gb.batRect[0]-gb.KEYBOARD_SPEED,gb.playerY)
+    if not gb.ballServed:
+        gb.bx,gb.by = setLocationUnservedBall(gb.changeBat)
+        gb.ballRect.topleft = (gb.bx,gb.by)
+def doKeyRight():
+    if gb.changeBat and gb.batLangRect[0] < gb.WIDTH-gb.batLangRect[2]:
+        gb.batLangRect.topleft = (gb.batLangRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
+    elif not gb.changeBat and ( gb.batRect[0] < gb.WIDTH-gb.batRect[2]):
+        gb.batRect.topleft = (gb.batRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
+    if not gb.ballServed:
+        gb.bx,gb.by = setLocationUnservedBall(gb.changeBat)
+        gb.ballRect.topleft = (gb.bx,gb.by)
+def setLocationUnservedBall(changeBat):
+    if changeBat:
+        return (gb.batLangRect[0]+int(gb.batLangRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batLangRect[3])
+    else:
+        return (gb.batRect[0]+int(gb.batRect[2]/2)-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+def checkBallCollides():
+    #Onderkant
+    if(gb.by <= 0):
+        gb.by = 0
+        gb.sy *= -1
+    #Bovenkant
+    if(gb.changeBall and gb.by >= gb.HEIGHT-24 ) or (not gb.changeBall and gb.by >= gb.HEIGHT-16):
+        if not gb.changeBall:
+            gb.by = gb.HEIGHT-16
+        else:
+            gb.by = gb.HEIGHT-24
+        gb.sy *= -1
+        gb.ballServed = False
+        if gb.changeBall:
+            gb.changeBall = False
+        gb.scoreTemp = 0
+        gb.bx,gb.by = (gb.batRect[0]+int((gb.batRect[2]/2)-gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
+        gb.ballRect.topleft = gb.bx,gb.by
+        gb.lives -= 1
+        if gb.lives == 0:
+            gb.levelsPlaying = False
+            gb.gameOverMenu = True
+    #Rechts
+    if(gb.bx <= 0):
+        gb.sx *= -1
+        gb.bx = 0
+    #Links
+    if(gb.bx >= gb.WIDTH):
+        gb.sx *= -1
+        gb.bx = gb.WIDTH
+def checkBallBatCollide():
+    collide = False
+    if not gb.changeBall and ((gb.ballRect.colliderect(gb.batRect) and not gb.changeBat)or(gb.ballRect.colliderect(gb.batLangRect) and gb.changeBat)):
+        #botsting met kleine bal
+        gb.by = gb.playerY-16
+        gb.score += gb.scoreTemp
+        collide = True
+    elif gb.changeBall and ((gb.ballBigRect.colliderect(gb.batRect) and not gb.changeBat)or(gb.ballBigRect.colliderect(gb.batLangRect) and gb.changeBat)):
+        #botsing met grote bal
+        gb.by = gb.playerY-24
+        gb.changeBall = False
+        gb.score += gb.scoreTemp*gb.scoreComboMultiplier
+        collide = True
+    if collide:
+        pygame.mixer.Sound.play(gb.batBotsingSound)
+        gb.scoreTemp = 0
+        gb.sy *= -1
+        if gb.scoreTemp >= gb.SCORE_FOR_EXTRA_LIFE and gb.lives < gb.maxLives:
+            gb.lives += 1
+        if gb.changeBat:
+            gb.batRect.topleft = gb.batLangRect.topleft
+            gb.changeBat = False
+def checkBallBrickCollide(brick):
+    if(brick[-1]==1):
+        gb.mainSurface.blit(gb.upgradeBlauw,(brick[-2].topleft))
+    elif(brick[-1]==2):
+        gb.mainSurface.blit(gb.upgradeGeel,(brick[-2].topleft))
+    elif(brick[-1]==3):
+        gb.mainSurface.blit(gb.upgradeSleutel,(brick[-2].topleft))
+    brick[-2].topleft = (brick[-2][0],brick[-2][1]+gb.ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
+    if gb.changeBat:
+        if(gb.batLangRect.colliderect(brick[-2]) and brick[-1]==1):
+            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+            gb.changeBall = True
+        elif(gb.batLangRect.colliderect(brick[-2]) and brick[-1]==2):
+            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+            gb.batLangRect.topleft = gb.batRect.topleft
+            gb.changeBat = True
+    elif not gb.changeBat:
+        if(gb.batRect.colliderect(brick[-2]) and brick[-1]==1):
+            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+            gb.changeBall = True
+        elif(gb.batRect.colliderect(brick[-2]) and brick[-1]==2):
+            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+            gb.batLangRect.topleft = gb.batRect.topleft
+            gb.changeBat = True
+    if(gb.batRect.colliderect(brick[-2]) and brick[-1]==3) or (gb.batLangRect.colliderect(brick[-2]) and brick[-1]==3):
+        del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+        gb.changeBat = False
+        gb.levelsPlaying = False
+        gb.changeLevel = True
+        gb.score += gb.scoreTemp
+    #out of bound detection
+    if(brick[-2][1] >= gb.HEIGHT-8):
+        del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
 if __name__ == '__main__':
     main()
