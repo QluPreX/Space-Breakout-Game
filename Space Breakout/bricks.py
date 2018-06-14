@@ -15,10 +15,6 @@ def main():
     while gb.gameOn:
         pygame.mixer.music.play(-1)
         while gb.showMenu:
-            welkomLabel = gb.fontobjTITEL.render('SPACE BREAKOUT!', True, gb.white,gb.black)
-            uitlegLijn1Label = gb.fontobj.render('Gebruik ARROW KEYS of je MUIS',True,gb.white,gb.black)
-            uitleglijn2Label = gb.fontobj.render('Druk SPATIE of op je muisknop voor de ball te starten!', True, gb.white,gb.black)
-            startLabel = gb.fontobj.render('Press any key to continue...',True, gb.white,gb.black)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -26,12 +22,9 @@ def main():
                 if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
                     gb.showMenu = False
                     gb.levelsPlaying = True
-            drawMultipleLines()
             gb.menuSurface.blit(gb.bgMain,(0,0))
-            gb.menuSurface.blit(welkomLabel,(400-int(welkomLabel.get_width()/2),50))
-            gb.menuSurface.blit(uitlegLijn1Label,(400-int(uitlegLijn1Label.get_width()/2),150))
-            gb.menuSurface.blit(uitleglijn2Label,(400-int(uitleglijn2Label.get_width()/2),180))
-            gb.menuSurface.blit(startLabel,(400-int(startLabel.get_width()/2),300))
+            gb.menuSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
+            drawMultipleLines(gb.stringMenuList,gb.white,gb.welkomLabel.get_width(),300)
             pygame.display.update()
             gb.FPSCLOCK.tick(10)
         gb.mainSurface.fill(gb.black)
@@ -50,7 +43,7 @@ def main():
             LevelindicatorLabel = gb.fontobj.render("Level:"+str(gb.level),True,gb.white,None)
             gb.mainSurface.blit(scoreLabel,(gb.WIDTH-scoreLabel.get_width()-5,5))
             if gb.DEVELOPER_TOOLS and gb.showCheatKeys:
-
+                drawMultipleLines(gb.cheatStringList,gb.white)
             if gb.scoreTemp > 4 and gb.changeBall:
                 gb.mainSurface.blit(scoreComboLabel,(400-int(scoreComboLabel.get_width()/2),6))
             if gb.scoreTemp > 2 and not gb.changeBall:
@@ -263,7 +256,7 @@ def main():
                 gb.changeBall = False
                 if gb.changeBat:
                     gb.batRect.topleft = gb.batLangRect.topleft
-                changeBat = False
+                gb.changeBat = False
                 if gb.scoreTemp >= gb.SCORE_FOR_EXTRA_LIFE and gb.lives < gb.maxLives:
                     gb.lives += 1
                 gb.score += gb.scoreTemp*gb.scoreComboMultiplier
@@ -337,7 +330,7 @@ def main():
                         gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
                         gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
                         gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
-                        gb.bricksRects,gb.bricks = gb.createBricks(4,2,2)
+                        gb.bricksRects,gb.bricks = createBricks(4,2,2)
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
@@ -395,6 +388,12 @@ class gb():
     ballMaxSpeed = 10
     #Strings
     keyDown = None
+    cheatStringList = ("key 1:..increase combo score","key 2:..................delete steen",
+                    "key 3:.................volgend level","key 4:....................extra leven",
+                    "key 5:.............maak bal groot","key 6:........maak player groot",
+                    "key 7:........increase ball speed","key ENTER:..........Keys Menu",)
+    stringMenuList = ('Gebruik ARROW KEYS of je MUIS','Druk SPATIE of op je muisknop voor de ball te starten!',
+                    'Press any key to continue...')
     #arrays
     upgradeRectList = []
     FPSCLOCK = pygame.time.Clock()
@@ -410,7 +409,8 @@ class gb():
     fontobjTITEL = pygame.font.Font("freesansbold.ttf", 24)
     fontobjCOMBO = pygame.font.Font("freesansbold.ttf",30)
     fontCheatKeys = pygame.font.Font(None,22)
-
+    #labels 
+    welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, white,black)
     #adding sounds
     batBotsingSound = pygame.mixer.Sound(os.path.join(ASSETS_FOLDER,"drop-a-brick.wav"))
     #sprites & achtergrond(en)
@@ -483,7 +483,6 @@ def createBricks(specials1PerLevel,specials2PerLevel,sleutels, lvl = gb.level,he
                 else:
                     bricksTemp.append((Rect(brickX,brickY,48,16),0)) #brick
                 bricksRectsTemp.append(Rect(brickX,brickY,48,16))
-    print(YrangeVoorX,YrangeVoorY, ":",XrangeVoorX,XrangeVoorY )
     return bricksRectsTemp,bricksTemp
 def showCheatMenu(event):
     if event.key == pygame.K_RETURN:
@@ -574,27 +573,12 @@ def setDynamicBackground():
         if relatief_Y < gb.HEIGHT:
             gb.mainSurface.blit(gb.bg4, (0,relatief_Y))
     gb.yBg += 1
-def drawMultipleLines(stringArray,color):
+def drawMultipleLines(stringArray,color = (0,0,0),  widthOffset = 0, heightOffset = 0,bgcolor = None,AA = True):
+    count = 0
     for string in stringArray:
-        stringLabel = gb.fontCheatKeys.render(string,True,color,None)
-        gb.mainSurface.blit(stringLabel,(gb.WIDTH-string.get_width(),gb.HEIGHT-string.get_height()*))
-
-    cheatKeysLabel1 = gb.fontCheatKeys.render("key 1:..increase combo score",True,gb.white,None)
-    cheatKeysLabel2 = gb.fontCheatKeys.render("key 2:..................delete steen",True,gb.white,None)
-    cheatKeysLabel3 = gb.fontCheatKeys.render("key 3:.................volgend level",True,gb.white,None)
-    cheatKeysLabel4 = gb.fontCheatKeys.render("key 4:....................extra leven",True,gb.white,None)
-    cheatKeysLabel5 = gb.fontCheatKeys.render("key 5:.............maak bal groot",True,gb.white,None)
-    cheatKeysLabel6 = gb.fontCheatKeys.render("key 6:........maak player groot",True,gb.white,None)
-    cheatKeysLabel7 = gb.fontCheatKeys.render("key 7:........increase ball speed",True,gb.white,None)
-    cheatKeysLabel8 = gb.fontCheatKeys.render("key ENTER:..........Keys Menu",True,gb.white,None)
-    gb.mainSurface.blit(cheatKeysLabel1,(gb.WIDTH-cheatKeysLabel1.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*1))
-    gb.mainSurface.blit(cheatKeysLabel2,(gb.WIDTH-cheatKeysLabel2.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*2))
-    gb.mainSurface.blit(cheatKeysLabel3,(gb.WIDTH-cheatKeysLabel3.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*3))
-    gb.mainSurface.blit(cheatKeysLabel4,(gb.WIDTH-cheatKeysLabel4.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*4))
-    gb.mainSurface.blit(cheatKeysLabel5,(gb.WIDTH-cheatKeysLabel5.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*5))
-    gb.mainSurface.blit(cheatKeysLabel6,(gb.WIDTH-cheatKeysLabel6.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*6))
-    gb.mainSurface.blit(cheatKeysLabel7,(gb.WIDTH-cheatKeysLabel7.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*7))
-    gb.mainSurface.blit(cheatKeysLabel8,(gb.WIDTH-cheatKeysLabel8.get_width(),gb.HEIGHT-cheatKeysLabel1.get_height()*8))
+        stringLabel = gb.fontCheatKeys.render(string,AA,color,bgcolor)
+        gb.mainSurface.blit(stringLabel,(gb.WIDTH-stringLabel.get_width() - widthOffset,(gb.HEIGHT-stringLabel.get_height()*count) - heightOffset ))
+        count += 1
 if __name__ == '__main__':
 
     main()
