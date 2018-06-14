@@ -1,6 +1,7 @@
 import pygame, os, sys
 from pygame import *
 import random as r
+import globalVarsClass as gb
 #GLOBALE  VARIABELEN
 def main():
     pygame.init()
@@ -9,7 +10,7 @@ def main():
     pygame.mouse.set_visible(0)
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
     # events
-    gb.menuSurface.fill(gb.black)
+    gb.mainSurface.fill(gb.black)
     #setup variabelen
         #booleans
     while gb.gameOn:
@@ -22,8 +23,8 @@ def main():
                 if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
                     gb.showMenu = False
                     gb.levelsPlaying = True
-            gb.menuSurface.blit(gb.bgMain,(0,0))
-            gb.menuSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
+            gb.mainSurface.blit(gb.bgMain,(0,0))
+            gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
             drawMultipleLines(gb.stringMenuList,gb.white,gb.welkomLabel.get_width(),300)
             pygame.display.update()
             gb.FPSCLOCK.tick(10)
@@ -138,30 +139,7 @@ def main():
             if not gb.changeBat:
                 gb.mainSurface.blit(gb.batSprite, gb.batRect)
             # teken stenen
-            for c in gb.bricksRects:
-                status = ""
-                index = None
-                for b in gb.bricks:
-                    if b[-1] == 0 and b[-2]==c:
-                        status = ""
-                    elif b[-1] == 1 and b[-2]==c:
-                        status = "upgradeBlauw"
-                    elif b[-1] == 2 and b[-2]==c:
-                        status = "upgradeGeel"
-                    elif b[-1] == 3 and b[-2]==c:
-                        status = "upgradeSleutel"
-                if status == "":
-                    index = gb.bricks.index((c,0))
-                    gb.mainSurface.blit(gb.brick,gb.bricks[index][-2])
-                elif status == "upgradeBlauw":
-                    index = gb.bricks.index((c,1))
-                    gb.mainSurface.blit(gb.brickBlauw,gb.bricks[index][-2])
-                elif status == "upgradeGeel":
-                    index = gb.bricks.index((c,2))
-                    gb.mainSurface.blit(gb.brickGeel,gb.bricks[index][-2])
-                elif status == "upgradeSleutel":
-                    index = gb.bricks.index((c,3))
-                    gb.mainSurface.blit(gb.brickSleutel,gb.bricks[index][-2])
+            tekenStenen()
             #teken upgrades
             for u in gb.upgradeRectList:
                 #collision detection
@@ -298,50 +276,33 @@ def main():
         gb.mainSurface.fill(gb.black)
         while gb.changeLevel:
             #draw backgroud
-            relatief_X = gb.xBg % gb.nextLevelSurface.get_rect().height
-            gb.nextLevelSurface.blit(gb.nextLevelBg,(relatief_X - gb.nextLevelSurface.get_rect().width,0))
+            relatief_X = gb.xBg % gb.mainSurface.get_rect().height
+            gb.mainSurface.blit(gb.nextLevelBg,(relatief_X - gb.mainSurface.get_rect().width,0))
             if relatief_X < gb.WIDTH:
-                gb.nextLevelSurface.blit(gb.nextLevelBg, (relatief_X,0))
+                gb.mainSurface.blit(gb.nextLevelBg, (relatief_X,0))
             gb.xBg += 1
             #draw labels
             levelLabel1 = gb.fontobjCOMBO.render("Congratulation!",True,gb.white,None)
             levelLabel2 = gb.fontobjCOMBO.render("You completed LEVEL "+ str(gb.level) + "!",True,gb.white,None)
             nextLevelLabel = gb.fontobjTITEL.render("proceed to next level, press SPACE..",True,gb.white,None)
-            gb.nextLevelSurface.blit(levelLabel1,(400-int(levelLabel1.get_width()/2),int(gb.HEIGHT/4)))
-            gb.nextLevelSurface.blit(levelLabel2,(400-int(levelLabel2.get_width()/2),int(gb.HEIGHT/4)+40))
-            gb.nextLevelSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(gb.HEIGHT/2)+50))
+            gb.mainSurface.blit(levelLabel1,(400-int(levelLabel1.get_width()/2),int(gb.HEIGHT/4)))
+            gb.mainSurface.blit(levelLabel2,(400-int(levelLabel2.get_width()/2),int(gb.HEIGHT/4)+40))
+            gb.mainSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(gb.HEIGHT/2)+50))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        gb.keyDown = ""
-                        gb.scoreTemp = 0
-                        gb.changeLevel = False
-                        gb.levelsPlaying = True
-                        gb.level += 1
-                        del gb.upgradeRectList[:]
-                        gb.ballServed = False
-                        gb.changeBall = False
-                        if gb.ballSpeed <gb.ballMaxSpeed:
-                            gb.ballSpeed += 1
-                        gb.sx, gb.sy = (gb.ballSpeed, gb.ballSpeed)
-                        gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
-                        gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
-                        gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
-                        gb.bricksRects,gb.bricks = createBricks(4,2,2)
+                        setupNextLevel()
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
         while gb.gameOverMenu:
             eindScore = gb.fontobjTITEL.render("Eindscore: " + str(gb.score), True, gb.white, None)
-            opnieuwText = gb.fontobj.render("Druk SPATIE voor opnieuw te spelen", True, gb.white,None)
-            afsluitText = gb.fontobj.render("Druk ESC voor af te sluiten", True, gb.white,None)
-            gb.gameOverSurface.blit(gb.gameOverBg,(0,0))
-            gb.gameOverSurface.blit(eindScore,(400-int(eindScore.get_width()/2),50))
-            gb.gameOverSurface.blit(opnieuwText,(400-int(opnieuwText.get_width()/2),500))
-            gb.gameOverSurface.blit(afsluitText,(400-int(afsluitText.get_width()/2),550))
+            gb.mainSurface.blit(gb.gameOverBg,(0,0))
+            gb.mainSurface.blit(eindScore,(400-int(eindScore.get_width()/2),290))
+            drawMultipleLines(gb.gameOverStringList,gb.white,270,50)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -354,97 +315,6 @@ def main():
                         pygame.quit()
                         sys.exit()
             pygame.display.update()
-class gb():
-        #statische variabelen
-    pygame.init()
-    WIDTH = 800
-    HEIGHT = 600
-    KEYBOARD_SPEED = 20
-    DEVELOPER_TOOLS = True #verander dit voor Cheatkeys te gebruiken
-    SCORE_FOR_EXTRA_LIFE = 12
-    GAME_FOLDER = os.path.dirname(__file__)
-    ASSETS_FOLDER = os.path.join(GAME_FOLDER,"Assets")
-    #dynamsche variabelen
-    showMenu = True
-    gameOn = True
-    levelsPlaying = False
-    gameOverMenu = False
-    changeLevel = False
-    showCheatKeys = False
-    ballServed = False
-    changeBall = False
-    changeBat = False
-    #integers
-    level = 1
-    score = 0
-    scoreTemp = 0
-    yBg = 0
-    xBg = 0
-    playerY = 540
-    lives = 3
-    maxLives = 6
-    scoreComboMultiplier = 2
-    ballSpeed = 4
-    ballMaxSpeed = 10
-    #Strings
-    keyDown = None
-    cheatStringList = ("key 1:..increase combo score","key 2:..................delete steen",
-                    "key 3:.................volgend level","key 4:....................extra leven",
-                    "key 5:.............maak bal groot","key 6:........maak player groot",
-                    "key 7:........increase ball speed","key ENTER:..........Keys Menu",)
-    stringMenuList = ('Gebruik ARROW KEYS of je MUIS','Druk SPATIE of op je muisknop voor de ball te starten!',
-                    'Press any key to continue...')
-    #arrays
-    upgradeRectList = []
-    FPSCLOCK = pygame.time.Clock()
-    #initiatleer DISPLAYS
-    mainSurface = pygame.display.set_mode((WIDTH,HEIGHT))
-    menuSurface = pygame.display.set_mode((WIDTH,HEIGHT))
-    gameOverSurface = pygame.display.set_mode((WIDTH,HEIGHT))
-    nextLevelSurface = pygame.display.set_mode((WIDTH,HEIGHT))
-
-    black = pygame.Color(0,0,0)
-    white = pygame.Color(255,255,255)
-    fontobj = pygame.font.Font("freesansbold.ttf", 14)
-    fontobjTITEL = pygame.font.Font("freesansbold.ttf", 24)
-    fontobjCOMBO = pygame.font.Font("freesansbold.ttf",30)
-    fontCheatKeys = pygame.font.Font(None,22)
-    #labels 
-    welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, white,black)
-    #adding sounds
-    batBotsingSound = pygame.mixer.Sound(os.path.join(ASSETS_FOLDER,"drop-a-brick.wav"))
-    #sprites & achtergrond(en)
-    bgMain = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg.png"))
-    gameOverBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"gameOver.png"))
-    bg1 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg1.jpg")).convert()
-    bg2 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg2.jpg")).convert()
-    bg3 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg3.jpg")).convert()
-    bg4 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg4.jpg")).convert()
-    nextLevelBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"nextLevelBg.jpg")).convert()
-    #dynamische X en Y voor bewegende achtergronden
-    # pallet initialiseren
-    batSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat.png")).convert()
-    batLangSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat_lang.png")).convert()
-    upgradeBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade1.png")).convert()
-    upgradeGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade2.png")).convert()
-    upgradeSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade_sleutel.png")).convert()
-    heartSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"heart.png")).convert()
-    heartRect = heartSprite.get_rect()# change topleft
-
-    bx, by = (int(WIDTH/2), playerY)
-    sx, sy = (ballSpeed, ballSpeed)
-    ballSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"ball.png"))
-    ballBigSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"ball_normal_big.png"))
-    batRect = batSprite.get_rect(topleft=(bx-22,playerY))
-    batLangRect = batLangSprite.get_rect(topleft=(bx-22,playerY))
-    ballRect = ballSprite.get_rect(topleft=(bx+int(batRect[2]/2)-26,by-int(batRect[3])))
-    ballBigRect = ballBigSprite.get_rect(topleft = (bx,by))
-    mouseX = bx
-    # steen initialiseren
-    brick = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick.png")) #ID = 0
-    brickBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_blue_purple.png")) #ID = 1
-    brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
-    brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
 def createBricks(specials1PerLevel,specials2PerLevel,sleutels, lvl = gb.level,height = gb.HEIGHT, width = gb.WIDTH):
     rands = specials1PerLevel*lvl
@@ -551,34 +421,69 @@ def checkMouseEvents(event):
             elif not gb.changeBall:
                 gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
             gb.ballRect.topleft = (gb.bx,gb.by)
+def bg(x):
+    return ((gb.bg1,gb.bg2,gb.bg3,gb.bg4)[x])
 def setDynamicBackground():
-    if (gb.level%4) == 0:
-        relatief_Y = gb.yBg % gb.bg1.get_rect().height
-        gb.mainSurface.blit(gb.bg1,(0,relatief_Y - gb.bg1.get_rect().height))
-        if relatief_Y < gb.HEIGHT:
-            gb.mainSurface.blit(gb.bg1, (0,relatief_Y))
-    if (gb.level%4) == 1:
-        relatief_Y = gb.yBg % gb.bg2.get_rect().height
-        gb.mainSurface.blit(gb.bg2,(0,relatief_Y - gb.bg2.get_rect().height))
-        if relatief_Y < gb.HEIGHT:
-            gb.mainSurface.blit(gb.bg2, (0,relatief_Y))
-    if (gb.level%4) == 2:
-        relatief_Y = gb.yBg % gb.bg3.get_rect().height
-        gb.mainSurface.blit(gb.bg3,(0,relatief_Y - gb.bg3.get_rect().height))
-        if relatief_Y < gb.HEIGHT:
-            gb.mainSurface.blit(gb.bg3, (0,relatief_Y))
-    if (gb.level%4) == 3:
-        relatief_Y = gb.yBg % gb.bg4.get_rect().height
-        gb.mainSurface.blit(gb.bg4,(0,relatief_Y - gb.bg4.get_rect().height))
-        if relatief_Y < gb.HEIGHT:
-            gb.mainSurface.blit(gb.bg4, (0,relatief_Y))
+    lvl = gb.level
+    background = bg(lvl%4)
+    gbRect = bg(lvl%4).get_rect()
+    relatief_Y = gb.yBg % gbRect.height
+    gb.mainSurface.blit(background,(0,int(relatief_Y - gbRect.height)))
+    if relatief_Y < gb.HEIGHT:
+        gb.mainSurface.blit(background, (0,relatief_Y))
     gb.yBg += 1
+def setupNextLevel():
+    gb.keyDown = ""
+    gb.scoreTemp = 0
+    gb.changeLevel = False
+    gb.levelsPlaying = True
+    gb.level += 1
+    gb.yBg = 0
+    del gb.upgradeRectList[:]
+    gb.ballServed = False
+    gb.changeBall = False
+    if gb.ballSpeed <gb.ballMaxSpeed:
+        gb.ballSpeed += 1
+    gb.sx, gb.sy = (gb.ballSpeed, gb.ballSpeed)
+    gb.bx,gb.by = (gb.mouseX-int(gb.ballRect[2]/2),gb.playerY-gb.batRect[3])
+    gb.ballRect.topleft = (gb.bx,gb.by) = ((gb.WIDTH/2)-int(gb.ballRect[2]/2),gb.playerY-gb.ballRect[3])
+    gb.batRect.topleft = gb.batLangRect.topleft = ((gb.WIDTH/2)-int(gb.batRect[2]/2),gb.playerY)
+    gb.bricksRects,gb.bricks = createBricks(4,2,2)
 def drawMultipleLines(stringArray,color = (0,0,0),  widthOffset = 0, heightOffset = 0,bgcolor = None,AA = True):
     count = 0
     for string in stringArray:
         stringLabel = gb.fontCheatKeys.render(string,AA,color,bgcolor)
         gb.mainSurface.blit(stringLabel,(gb.WIDTH-stringLabel.get_width() - widthOffset,(gb.HEIGHT-stringLabel.get_height()*count) - heightOffset ))
         count += 1
-if __name__ == '__main__':
+def tekenStenen():
+    for c in gb.bricksRects:
+        status = ""
+        index = None
+        for b in gb.bricks:
+            if b[-1] == 0 and b[-2]==c:
+                status = ""
+            elif b[-1] == 1 and b[-2]==c:
+                status = "upgradeBlauw"
+            elif b[-1] == 2 and b[-2]==c:
+                status = "upgradeGeel"
+            elif b[-1] == 3 and b[-2]==c:
+                status = "upgradeSleutel"
+        if status == "":
+            index = gb.bricks.index((c,0))
+            gb.mainSurface.blit(gb.brick,gb.bricks[index][-2])
+        elif status == "upgradeBlauw":
+            index = gb.bricks.index((c,1))
+            gb.mainSurface.blit(gb.brickBlauw,gb.bricks[index][-2])
+        elif status == "upgradeGeel":
+            index = gb.bricks.index((c,2))
+            gb.mainSurface.blit(gb.brickGeel,gb.bricks[index][-2])
+        elif status == "upgradeSleutel":
+            index = gb.bricks.index((c,3))
+            gb.mainSurface.blit(gb.brickSleutel,gb.bricks[index][-2])
 
+
+
+
+
+if __name__ == '__main__':
     main()
