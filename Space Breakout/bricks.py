@@ -9,28 +9,14 @@ def main():
     pygame.display.set_caption("Bricks")
     pygame.mouse.set_visible(0)
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
-    # events
     gb.mainSurface.fill(gb.black)
-    #setup variabelen
-        #booleans
     while gb.gameOn:
         pygame.mixer.music.play(-1)
         while gb.showMenu:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
-                    gb.showMenu = False
-                    gb.levelsPlaying = True
-            gb.mainSurface.blit(gb.bgMain,(0,0))
-            gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
-            drawMultipleLines(gb.stringMenuList,gb.white,gb.welkomLabel.get_width(),300)
+            showMenu()
             pygame.display.update()
             gb.FPSCLOCK.tick(10)
         gb.mainSurface.fill(gb.black)
-        #setup upgrades
-        gb.bricksRects,gb.bricks = createBricks(4,2,2) #aatalSpecialeBricks
         while gb.levelsPlaying:
             #backgrouns scrolling
             setDynamicBackground()
@@ -52,10 +38,8 @@ def main():
             gb.mainSurface.blit(LevelindicatorLabel,(0,gb.HEIGHT-LevelindicatorLabel.get_height()-10))
             #events
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.MOUSEBUTTONUP:
+                checkKeyQuit(event)
+                if event.type == pygame.MOUSEBUTTONUP:
                     if not gb.ballServed:
                         gb.ballServed = True
                 elif event.type == pygame.MOUSEMOTION:
@@ -65,7 +49,7 @@ def main():
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT and gb.keyDown == "K_LEFT":
                         gb.keyDown = None
-                    if event.key == pygame.K_RIGHT and gb.keyDown == "K_RIGHT":
+                    elif event.key == pygame.K_RIGHT and gb.keyDown == "K_RIGHT":
                         gb.keyDown = None
             if gb.keyDown:
                 checkKeyHoldingEvents(gb.keyDown)
@@ -78,7 +62,7 @@ def main():
             #teken upgrades
             for u in gb.upgradeRectList:
                 #collision detection
-                checkBallBrickCollide(u)
+                checkBallUpgradeCollide(u)
             # teken pallet en bal
             if gb.ballServed:
                 gb.bx -= gb.sx
@@ -91,7 +75,7 @@ def main():
             else:
                 gb.ballBigRect.topleft = (gb.bx,gb.by)
                 gb.mainSurface.blit(gb.ballBigSprite,gb.ballBigRect)
-            # hoofdlogicad
+            # hoofdlogica
             # botsingen detecteren
             checkBallBatCollide()
             brickHitIndex = []
@@ -131,46 +115,55 @@ def main():
         gb.mainSurface.fill(gb.black)
         while gb.changeLevel:
             #draw backgroud
-            relatief_X = gb.xBg % gb.mainSurface.get_rect().height
-            gb.mainSurface.blit(gb.nextLevelBg,(relatief_X - gb.mainSurface.get_rect().width,0))
-            if relatief_X < gb.WIDTH:
-                gb.mainSurface.blit(gb.nextLevelBg, (relatief_X,0))
-            gb.xBg += 1
-            #draw labels
-            levelLabel1 = gb.fontobjCOMBO.render("Congratulation!",True,gb.white,None)
-            levelLabel2 = gb.fontobjCOMBO.render("You completed LEVEL "+ str(gb.level) + "!",True,gb.white,None)
-            nextLevelLabel = gb.fontobjTITEL.render("proceed to next level, press SPACE..",True,gb.white,None)
-            gb.mainSurface.blit(levelLabel1,(400-int(levelLabel1.get_width()/2),int(gb.HEIGHT/4)))
-            gb.mainSurface.blit(levelLabel2,(400-int(levelLabel2.get_width()/2),int(gb.HEIGHT/4)+40))
-            gb.mainSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(gb.HEIGHT/2)+50))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        setupNextLevel()
+            showLevelChange()
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
             gb.mainSurface.fill(gb.black)
         while gb.gameOverMenu:
-            eindScore = gb.fontobjTITEL.render("Eindscore: " + str(gb.score), True, gb.white, None)
-            gb.mainSurface.blit(gb.gameOverBg,(0,0))
-            gb.mainSurface.blit(eindScore,(400-int(eindScore.get_width()/2),290))
-            drawMultipleLines(gb.gameOverStringList,gb.white,270,50)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        resetForNewGame()
-                    if event.key == pygame.K_ESCAPE:
-                        gb.gameOn = False
-                        pygame.quit()
-                        sys.exit()
+            showGameOverMenu()
             pygame.display.update()
-
+def showGameOverMenu():
+    eindScore = gb.fontobjTITEL.render("Eindscore: " + str(gb.score), True, gb.white, None)
+    gb.mainSurface.blit(gb.gameOverBg,(0,0))
+    gb.mainSurface.blit(eindScore,(400-int(eindScore.get_width()/2),290))
+    drawMultipleLines(gb.gameOverStringList,gb.white,270,50)
+    for event in pygame.event.get():
+        checkKeyQuit(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                resetForNewGame()
+            elif event.key == pygame.K_ESCAPE:
+                gb.gameOn = False
+                pygame.quit()
+                sys.exit()
+def showLevelChange():
+    relatief_X = gb.xBg % gb.mainSurface.get_rect().height
+    gb.mainSurface.blit(gb.nextLevelBg,(relatief_X - gb.mainSurface.get_rect().width,0))
+    if relatief_X < gb.WIDTH:
+        gb.mainSurface.blit(gb.nextLevelBg, (relatief_X,0))
+    gb.xBg += 1
+    #draw labels
+    levelLabel1 = gb.fontobjCOMBO.render("Congratulation!",True,gb.white,None)
+    levelLabel2 = gb.fontobjCOMBO.render("You completed LEVEL "+ str(gb.level) + "!",True,gb.white,None)
+    nextLevelLabel = gb.fontobjTITEL.render("proceed to next level, press SPACE..",True,gb.white,None)
+    gb.mainSurface.blit(levelLabel1,(400-int(levelLabel1.get_width()/2),int(gb.HEIGHT/4)))
+    gb.mainSurface.blit(levelLabel2,(400-int(levelLabel2.get_width()/2),int(gb.HEIGHT/4)+40))
+    gb.mainSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(gb.HEIGHT/2)+50))
+    for event in pygame.event.get():
+        checkKeyQuit(event)
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                setupNextLevel()
+def showMenu():
+    for event in pygame.event.get():
+        checkKeyQuit(event)
+        if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
+            gb.showMenu = False
+            gb.levelsPlaying = True
+            gb.bricksRects,gb.bricks = createBricks(4,2,2)
+    gb.mainSurface.blit(gb.bgMain,(0,0))
+    gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
+    drawMultipleLines(gb.stringMenuList,gb.white,gb.welkomLabel.get_width(),300)
 def createBricks(specials1PerLevel,specials2PerLevel,sleutels, lvl = gb.level,height = gb.HEIGHT, width = gb.WIDTH):
     rands = specials1PerLevel*lvl
     rands2 = specials2PerLevel*lvl
@@ -425,38 +418,41 @@ def checkBallBatCollide():
         if gb.changeBat:
             gb.batRect.topleft = gb.batLangRect.topleft
             gb.changeBat = False
-def checkBallBrickCollide(brick):
-    if(brick[-1]==1):
-        gb.mainSurface.blit(gb.upgradeBlauw,(brick[-2].topleft))
-    elif(brick[-1]==2):
-        gb.mainSurface.blit(gb.upgradeGeel,(brick[-2].topleft))
-    elif(brick[-1]==3):
-        gb.mainSurface.blit(gb.upgradeSleutel,(brick[-2].topleft))
-    brick[-2].topleft = (brick[-2][0],brick[-2][1]+gb.ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
+def checkBallUpgradeCollide(upgrade):
+    if(upgrade[-1]==1):
+        gb.mainSurface.blit(gb.upgradeBlauw,(upgrade[-2].topleft))
+    elif(upgrade[-1]==2):
+        gb.mainSurface.blit(gb.upgradeGeel,(upgrade[-2].topleft))
+    elif(upgrade[-1]==3):
+        gb.mainSurface.blit(gb.upgradeSleutel,(upgrade[-2].topleft))
+    upgrade[-2].topleft = (upgrade[-2][0],upgrade[-2][1]+gb.ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
     if gb.changeBat:
-        if(gb.batLangRect.colliderect(brick[-2]) and brick[-1]==1):
-            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+        deleteUpgradeByRect(upgrade)
+        if(gb.batLangRect.colliderect(upgrade[-2]) and upgrade[-1]==1):
             gb.changeBall = True
-        elif(gb.batLangRect.colliderect(brick[-2]) and brick[-1]==2):
-            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+        elif(gb.batLangRect.colliderect(upgrade[-2]) and upgrade[-1]==2):
             gb.batLangRect.topleft = gb.batRect.topleft
-            gb.changeBat = True
     elif not gb.changeBat:
-        if(gb.batRect.colliderect(brick[-2]) and brick[-1]==1):
-            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+        deleteUpgradeByRect(upgrade)
+        if(gb.batRect.colliderect(upgrade[-2]) and upgrade[-1]==1):
             gb.changeBall = True
-        elif(gb.batRect.colliderect(brick[-2]) and brick[-1]==2):
-            del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+        elif(gb.batRect.colliderect(upgrade[-2]) and upgrade[-1]==2):
             gb.batLangRect.topleft = gb.batRect.topleft
             gb.changeBat = True
-    if(gb.batRect.colliderect(brick[-2]) and brick[-1]==3) or (gb.batLangRect.colliderect(brick[-2]) and brick[-1]==3):
-        del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+    if(gb.batRect.colliderect(upgrade[-2]) and upgrade[-1]==3) or (gb.batLangRect.colliderect(upgrade[-2]) and upgrade[-1]==3):
+        deleteUpgradeByRect(upgrade)
         gb.changeBat = False
         gb.levelsPlaying = False
         gb.changeLevel = True
         gb.score += gb.scoreTemp
     #out of bound detection
-    if(brick[-2][1] >= gb.HEIGHT-8):
-        del(gb.upgradeRectList[gb.upgradeRectList.index(brick)])
+    if(upgrade[-2][1] >= gb.HEIGHT-8):
+        deleteUpgradeByRect(upgrade)
+def deleteUpgradeByRect(upgrade):
+    del(gb.upgradeRectList[gb.upgradeRectList.index(upgrade)])
+def checkKeyQuit(event):
+    if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
 if __name__ == '__main__':
     main()
