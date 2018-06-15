@@ -377,7 +377,7 @@ def checkLevelEvents():
     if gb.keyDown:
         checkKeyHoldingEvents(gb.keyDown)
 
-
+ 
 #checks all keydownevents
 #includes Left,Right and Space
 def checkKeyDownEvents(event ):
