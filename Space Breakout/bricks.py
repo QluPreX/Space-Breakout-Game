@@ -1,28 +1,20 @@
 import pygame, os, sys
 from pygame import *
 import random as r
+import pickle
 import globalVarsClass as gb
 #GLOBALE  VARIABELEN
 def main():
-    pygame.init()
-    pygame.display.set_mode((0,0))
-    pygame.display.set_caption("Bricks")
-    pygame.mouse.set_visible(0)
-    pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
-    gb.mainSurface.fill(gb.black)
+    setupPy()
     while gb.gameOn:
         pygame.mixer.music.play(-1)
         while gb.showMenu:
             showMenu()
             pygame.display.update()
             gb.FPSCLOCK.tick(10)
-        gb.mainSurface.fill(gb.black)
         while gb.levelsPlaying:
-            #backgrouns scrolling
             setDynamicBackground()
-            #levens
             drawHUD()
-            #events
             checkLevelEvents()
             if gb.changeBat:
                 gb.mainSurface.blit(gb.batLangSprite, gb.batLangRect)
@@ -30,20 +22,14 @@ def main():
                 gb.mainSurface.blit(gb.batSprite, gb.batRect)
             drawBricks()
             drawUpgrades()
-            # teken pallet en bal
             if gb.ballServed:
-                gb.bx -= gb.sx
-                gb.by -=gb.sy
-                gb.ballRect.topleft = (gb.bx,gb.by)
-                gb.ballBigRect.topleft = (gb.bx,gb.by)
+                moveBall()
                 checkBallCollides()
             if not gb.changeBall:
                 gb.mainSurface.blit(gb.ballSprite, gb.ballRect)
             else:
                 gb.ballBigRect.topleft = (gb.bx,gb.by)
                 gb.mainSurface.blit(gb.ballBigSprite,gb.ballBigRect)
-            # hoofdlogica
-            # botsingen detecteren
             checkBallBatCollide()
             brickHitIndex = []
             if not gb.changeBall:
@@ -51,52 +37,44 @@ def main():
             else:
                 brickHitIndex = gb.ballBigRect.collidelist(gb.bricksRects)
             if brickHitIndex >= 0: # geen botsing = -1
-                if gb.changeBall and gb.scoreTemp > 4:
-                    gb.scoreTemp += 4
-                if not gb.changeBall and gb.scoreTemp > 2:
-                    gb.scoreTemp += 2
-                else:
-                    gb.scoreTemp += 1
-                hb = gb.bricksRects[brickHitIndex]
-                for b in gb.bricks:
-                    if b[-1] == 1 and b[-2]==hb:
-                        upX,upY = hb[0],hb[1]
-                        gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),1))
-                    elif b[-1] == 2 and b[-2]==hb:
-                        upX,upY = hb[0],hb[1]
-                        gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),2))
-                    elif b[-1] == 3 and b[-2]==hb:
-                        upX,upY = hb[0],hb[1]
-                        gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),3))
-                mx = gb.bx + 4
-                if mx > hb.x + hb.width or mx < hb.x:
-                    gb.sx *= -1
-                else:
-                    gb.sy *= -1
-                del(gb.bricksRects[brickHitIndex])
+                brickHit(brickHitIndex)
             if not gb.bricksRects:
                 gb.levelsPlaying = False
                 gb.changeLevel = True
             pygame.display.update()
-            gb.FPSCLOCK.tick(30) #FPS op juiste snelheid zetten
-        gb.mainSurface.fill(gb.black)
+            gb.FPSCLOCK.tick(30)
         while gb.changeLevel:
-            #draw backgroud
             showLevelChange()
             pygame.display.update()
             gb.FPSCLOCK.tick(30)
-            gb.mainSurface.fill(gb.black)
         while gb.gameOverMenu:
             showGameOverMenu()
             pygame.display.update()
 #######################################################################################################
+#sets up all pygame properties
+#used before game start
+def setupPy():
+    pygame.init()
+    pygame.display.set_mode((0,0))
+    pygame.display.set_caption("Bricks")
+    pygame.mouse.set_visible(0)
+    pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
+    gb.score = 0
+    try:
+        with open('score.dat', 'rb') as file:
+            gb.loadscore = pickle.load(file)
+    except:
+        gb.loadscore = 0
 #Shows the Game Over Screen.
 #includes "Eindscore" & press space to play again
 def showGameOverMenu():
     eindScore = gb.fontobjTITEL.render("Eindscore: " + str(gb.score), True, gb.white, None)
+    if gb.loadscore < gb.score:
+        with open('score.dat', 'wb') as file:
+            pickle.dump(gb.score, file)
     gb.mainSurface.blit(gb.gameOverBg,(0,0))
     gb.mainSurface.blit(eindScore,(400-int(eindScore.get_width()/2),290))
-    drawMultipleLines(gb.gameOverStringList,gb.white,270,50)
+    drawMultipleLines(gb.gameOverStringList,gb.white,"freesansbold.ttf",22,270,50)
     for event in pygame.event.get():
         checkKeyQuit(event)
         if event.type == pygame.KEYDOWN:
@@ -108,21 +86,25 @@ def showGameOverMenu():
                 sys.exit()
 
 
+#gives the string needed for next level
+#is not in class, str(lvl) will not change if it was
+def getNextLevelStringList(lvl):
+    nextLevelStringList = ("You completed LEVEL "+ str(lvl) + "!","proceed to next level, press SPACE..")
+    return (nextLevelStringList)
+
 #Shows the "Completed level" screen
 #Ability to setup all variables needed in setupNextLevel()
 def showLevelChange():
-    relatief_X = gb.xBg % gb.mainSurface.get_rect().height
+    #dynamic background
+    relatief_X = gb.xBg % gb.mainSurface.get_rect().width
     gb.mainSurface.blit(gb.nextLevelBg,(relatief_X - gb.mainSurface.get_rect().width,0))
     if relatief_X < gb.WIDTH:
         gb.mainSurface.blit(gb.nextLevelBg, (relatief_X,0))
     gb.xBg += 1
     #draw labels
-    levelLabel1 = gb.fontobjCOMBO.render("Congratulation!",True,gb.white,None)
-    levelLabel2 = gb.fontobjCOMBO.render("You completed LEVEL "+ str(gb.level) + "!",True,gb.white,None)
-    nextLevelLabel = gb.fontobjTITEL.render("proceed to next level, press SPACE..",True,gb.white,None)
-    gb.mainSurface.blit(levelLabel1,(400-int(levelLabel1.get_width()/2),int(gb.HEIGHT/4)))
-    gb.mainSurface.blit(levelLabel2,(400-int(levelLabel2.get_width()/2),int(gb.HEIGHT/4)+40))
-    gb.mainSurface.blit(nextLevelLabel,(400-int(nextLevelLabel.get_width()/2),int(gb.HEIGHT/2)+50))
+    levelLabel = gb.fontobjCOMBO.render("Congratulation!",True,gb.white,None)
+    gb.mainSurface.blit(levelLabel,(400-int(levelLabel.get_width()/2),int(gb.HEIGHT/4)))
+    drawMultipleLines(getNextLevelStringList(gb.level),gb.white,"freesansbold.ttf",22,200,300)
     for event in pygame.event.get():
         checkKeyQuit(event)
         if event.type == pygame.KEYDOWN:
@@ -141,9 +123,9 @@ def showMenu():
             gb.bricksRects,gb.bricks = createBricks(4,2,2)
     gb.mainSurface.blit(gb.bgMain,(0,0))
     gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
-    drawMultipleLines(gb.stringMenuList,gb.white,gb.welkomLabel.get_width(),300)
-
-
+    drawMultipleLines(gb.stringMenuList,gb.white,"freesansbold.ttf",18,gb.welkomLabel.get_width()-40,320)
+    highscore = gb.fontobj.render("Your highscore: "+ str(gb.loadscore),True,gb.white,None)
+    gb.mainSurface.blit(highscore,(gb.WIDTH-highscore.get_width()-5,5))
 #generates the bricksets in levels
 #Returns 1 list of all bricks with ID's and 1 list with only Rectangles
 #Ability to randomise
@@ -196,7 +178,7 @@ def handleCheatMenu(event):
         else:
             gb.showCheatKeys = True
     if event.key == pygame.K_1:
-        gb.scoreTemp +=1
+        gb.scoreTemp +=10
     if event.key == pygame.K_2:
         del gb.bricksRects[0]
         gb.scoreTemp += 1
@@ -218,6 +200,40 @@ def handleCheatMenu(event):
                 gb.sx,gb.sy = (gb.ballSpeed,gb.ballSpeed)
 
 
+#moves the ball
+def moveBall():
+    gb.bx -= gb.sx
+    gb.by -=gb.sy
+    gb.ballRect.topleft = (gb.bx,gb.by)
+    gb.ballBigRect.topleft = (gb.bx,gb.by)
+
+
+#check the brick hit
+#create upgrades when needed & delete brick
+def brickHit(brickHitIndex):
+    if gb.changeBall and gb.scoreTemp > 4:
+        gb.scoreTemp += 4
+    if not gb.changeBall and gb.scoreTemp > 2:
+        gb.scoreTemp += 2
+    else:
+        gb.scoreTemp += 1
+    hb = gb.bricksRects[brickHitIndex]
+    for b in gb.bricks:
+        if b[-1] == 1 and b[-2]==hb:
+            upX,upY = hb[0],hb[1]
+            gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),1))
+        elif b[-1] == 2 and b[-2]==hb:
+            upX,upY = hb[0],hb[1]
+            gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),2))
+        elif b[-1] == 3 and b[-2]==hb:
+            upX,upY = hb[0],hb[1]
+            gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),3))
+    mx = gb.bx + 4
+    if mx > hb.x + hb.width or mx < hb.x:
+        gb.sx *= -1
+    else:
+        gb.sy *= -1
+    del(gb.bricksRects[brickHitIndex])
 #draws the Head-Up Display
 #Hud includes: Lives, score, comboscore and levelindicator
 def drawHUD():
@@ -330,10 +346,11 @@ def setupNextLevel():
 
 #Definition to draw multiple lines at once
 #using a list of strings, draws lines with offsets
-def drawMultipleLines(stringArray,color = (0,0,0),  widthOffset = 0, heightOffset = 0,bgcolor = None,AA = True):
+def drawMultipleLines(stringArray,color = (0,0,0),font = None, fontSize = 22, widthOffset = 0, heightOffset = 0):
     count = 0
+    thisFont = pygame.font.Font(font,fontSize)
     for string in stringArray:
-        stringLabel = gb.fontCheatKeys.render(string,AA,color,bgcolor)
+        stringLabel = thisFont.render(string,True,color,None)
         gb.mainSurface.blit(stringLabel,(gb.WIDTH-stringLabel.get_width() - widthOffset,(gb.HEIGHT-stringLabel.get_height()*count) - heightOffset ))
         count += 1
 
@@ -501,14 +518,13 @@ def checkBallBatCollide():
         collide = True
     if collide:
         pygame.mixer.Sound.play(gb.batBotsingSound)
-        gb.scoreTemp = 0
         gb.sy *= -1
         if gb.scoreTemp >= gb.SCORE_FOR_EXTRA_LIFE and gb.lives < gb.maxLives:
             gb.lives += 1
         if gb.changeBat:
             gb.batRect.topleft = gb.batLangRect.topleft
             gb.changeBat = False
-
+        gb.scoreTemp = 0
 
 #checks if the upgrades collided with ball
 #goes to deletes the nessecary upgrade and upgrades the player

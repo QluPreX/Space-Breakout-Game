@@ -6,7 +6,7 @@ WIDTH = 800
 HEIGHT = 600
 KEYBOARD_SPEED = 20
 DEVELOPER_TOOLS = True #verander dit voor Cheatkeys te gebruiken
-SCORE_FOR_EXTRA_LIFE = 12
+SCORE_FOR_EXTRA_LIFE = 20
 GAME_FOLDER = os.path.dirname(__file__)
 ASSETS_FOLDER = os.path.join(GAME_FOLDER,"Assets")
 #dynamsche variabelen
@@ -32,9 +32,10 @@ scoreComboMultiplier = 2
 ballSpeed = 4
 ballMaxSpeed = 10
 #Strings
+loadscore = None
 keyDown = None
 cheatStringList = ("key 1:..increase combo score","key 2:..................delete steen","key 3:.................volgend level","key 4:....................extra leven","key 5:.............maak bal groot","key 6:........maak player groot","key 7:........increase ball speed","key ENTER:..........Keys Menu")
-stringMenuList = ('Gebruik ARROW KEYS of je MUIS','Druk SPATIE of op je muisknop voor de ball te starten!','Press any key to continue...')
+stringMenuList = ('Gebruik ARROW KEYS of je MUIS              ','Druk SPATIE of op je muisknop voor de ball te starten!','Press any key to continue...                 ')
 gameOverStringList = ("Druk SPATIE voor opnieuw te spelen","Druk ESC voor af te sluiten")
 #arrays
 upgradeRectList = []
@@ -48,7 +49,7 @@ white = pygame.Color(255,255,255)
 fontobj = pygame.font.Font("freesansbold.ttf", 14)
 fontobjTITEL = pygame.font.Font("freesansbold.ttf", 24)
 fontobjCOMBO = pygame.font.Font("freesansbold.ttf",30)
-fontCheatKeys = pygame.font.Font(None,22)
+
 #labels
 welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, white,black)
 #adding sounds
@@ -85,3 +86,7 @@ brick = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick.png")) #ID = 0
 brickBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_blue_purple.png")) #ID = 1
 brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
 brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
+
+#refresh level for string List
+def getLevel():
+ return level
