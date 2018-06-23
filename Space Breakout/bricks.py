@@ -8,11 +8,14 @@ def main():
     setupPy()
     while gb.gameOn:
         pygame.mixer.music.play(-1)
+        pygame.mouse.set_visible(1)
         while gb.showMenu:
             showMenu()
             pygame.display.update()
             gb.FPSCLOCK.tick(10)
+        pygame.mouse.set_visible(0)
         while gb.levelsPlaying:
+            setButtonTriggerFalse(gb.buttonList[0])
             setDynamicBackground()
             drawHUD()
             checkLevelEvents()
@@ -57,7 +60,6 @@ def setupPy():
     pygame.init()
     pygame.display.set_mode((0,0))
     pygame.display.set_caption("Bricks")
-    pygame.mouse.set_visible(0)
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
     gb.score = 0
     try:
@@ -65,6 +67,8 @@ def setupPy():
             gb.loadscore = pickle.load(file)
     except:
         gb.loadscore = 0
+
+
 #Shows the Game Over Screen.
 #includes "Eindscore" & press space to play again
 def showGameOverMenu():
@@ -117,15 +121,24 @@ def showLevelChange():
 def showMenu():
     for event in pygame.event.get():
         checkKeyQuit(event)
-        if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
-            gb.showMenu = False
-            gb.levelsPlaying = True
-            gb.bricksRects,gb.bricks = createBricks(4,2,2)
+        if event.type == pygame.KEYDOWN:
+            if gb.inNameTagButton:
+                if(len(pygame.key.name(event.key)) == 1):
+                    gb.name = gb.name + pygame.key.name(event.key)
+                    print(gb.name)
+            if event.key == pygame.K_RETURN:
+                gb.showMenu = False
+                gb.levelsPlaying = True
+                gb.bricksRects,gb.bricks = createBricks(4,2,2)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            checkButtons()
     gb.mainSurface.blit(gb.bgMain,(0,0))
     gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
     drawMultipleLines(gb.stringMenuList,gb.white,"freesansbold.ttf",18,gb.welkomLabel.get_width()-40,320)
     highscore = gb.fontobj.render("Your highscore: "+ str(gb.loadscore),True,gb.white,None)
     gb.mainSurface.blit(highscore,(gb.WIDTH-highscore.get_width()-5,5))
+    nameInput()
+
 #generates the bricksets in levels
 #Returns 1 list of all bricks with ID's and 1 list with only Rectangles
 #Ability to randomise
@@ -394,7 +407,6 @@ def checkLevelEvents():
     if gb.keyDown:
         checkKeyHoldingEvents(gb.keyDown)
 
- 
 #checks all keydownevents
 #includes Left,Right and Space
 def checkKeyDownEvents(event ):
@@ -465,7 +477,6 @@ def drawUpgrades():
             gb.mainSurface.blit(gb.upgradeSleutel,(upgrade[-2].topleft))
         upgrade[-2].topleft = (upgrade[-2][0],upgrade[-2][1]+gb.ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
         checkBallUpgradeCollide(upgrade)
-
 
 #check for the ball collides
 #ability to check for up, down, left and right of the screen
@@ -571,6 +582,63 @@ def checkKeyQuit(event):
         sys.exit()
 
 
-#do main as last
+#De naambalk, hier zet je je naam in
+def nameInput():
+    #input
+    pygame.draw.rect(gb.mainSurface,gb.black,gb.coordNameTag)
+    #canvas
+    pygame.draw.rect(gb.mainSurface,gb.white,gb.coordNameTag,2)
+    #button of the nametag
+    addButton("nametag",gb.coordNameTag)
+    if getButtonTriggerByName("nametag"):
+        nameLabel = gb.fontobj.render(gb.name,True,gb.white)
+        gb.mainSurface.blit(nameLabel,(gb.coordNameTag[0]+5,gb.coordNameTag[1]+8))
+        drawCursor(nameLabel.get_width())
+        gb.inNameTagButton = True
+
+def drawCursor(w):
+    coord = gb.coordNameTag[0]+5+w,gb.coordNameTag[1]+22,7,2
+    pygame.draw.rect(gb.mainSurface,gb.white,coord)
+
+
+#adds an invisible button
+def addButton(name,coordButton):
+    #coordButton = (x,y,width,height)
+    gb.buttonList.append((name,(coordButton[0],coordButton[1],coordButton[2],coordButton[3])))
+    gb.buttonTriggers.append(False)
+
+
+#let the event check ALL buttons
+def checkButtons():
+    mouse = pygame.mouse.get_pos()
+    mx,my = mouse[0],mouse[1]
+    for button in gb.buttonList:
+        bXmin,bXmax = button[1][0],button[1][0]+button[1][2]
+        bYmin,bYmax = button[1][1],button[1][1]+button[1][3]
+        if (mx >= int(bXmin) and mx <= int(bXmax)) and (my >= bYmin and my <= bYmax):
+            setButtonTrigger(button)
+
+
+#returns the trigger of the button searched by STRING:name
+def getButtonTriggerByName(name):
+    for button in gb.buttonList:
+        try:
+            i = gb.buttonList.index((name,button[1]))
+            return gb.buttonTriggers[0]
+            break
+        except ValueError:
+            print("not in list")
+
+
+def setButtonTrigger(button):
+    i = gb.buttonList.index(button)
+    gb.buttonTriggers[i] = True
+
+
+def setButtonTriggerFalse(button):
+    i = gb.buttonList.index(button)
+    gb.buttonTriggers[i] = False
+
+
 if __name__ == '__main__':
     main()

@@ -19,6 +19,9 @@ showCheatKeys = False
 ballServed = False
 changeBall = False
 changeBat = False
+        #buttons
+inNameTagButton = False
+
 #integers
 level = 1
 score = 0
@@ -31,14 +34,19 @@ maxLives = 6
 scoreComboMultiplier = 2
 ballSpeed = 4
 ballMaxSpeed = 10
+nameTagWidth = 140
+nameTagHeight = 30
 #Strings
 loadscore = None
 keyDown = None
+name = ""
 cheatStringList = ("key 1:..increase combo score","key 2:..................delete steen","key 3:.................volgend level","key 4:....................extra leven","key 5:.............maak bal groot","key 6:........maak player groot","key 7:........increase ball speed","key ENTER:..........Keys Menu")
-stringMenuList = ('Gebruik ARROW KEYS of je MUIS              ','Druk SPATIE of op je muisknop voor de ball te starten!','Press any key to continue...                 ')
+stringMenuList = ('Gebruik ARROW KEYS of je MUIS              ','Druk SPATIE of op je muisknop voor de ball te starten!','Press ENTER to continue...                 ')
 gameOverStringList = ("Druk SPATIE voor opnieuw te spelen","Druk ESC voor af te sluiten")
 #arrays
-upgradeRectList = []
+upgradeRectList = [] # (Rect, ID)
+buttonList = [] # ("string", Rect, trigger)
+buttonTriggers = list()
 pygame.init()
 FPSCLOCK = pygame.time.Clock()
 #initiatleer DISPLAYS
@@ -87,6 +95,8 @@ brickBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_blue_purple.png
 brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
 brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
+#coord nameTag
+coordNameTag = ((WIDTH/2)-(nameTagWidth/2),150,nameTagWidth,nameTagHeight)
 #refresh level for string List
 def getLevel():
  return level
