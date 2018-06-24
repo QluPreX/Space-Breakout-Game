@@ -13,10 +13,10 @@ def main():
         while gb.showMenu:
             showMenu()
             pygame.display.update()
-            gb.FPSCLOCK.tick(10)
+            gb.FPSCLOCK.tick(30)
         pygame.mouse.set_visible(0)
         while gb.levelsPlaying:
-            setButtonTriggerFalse(gb.buttonList[0])
+            setButtonTriggerByName("nametag",False)
             setDynamicBackground()
             drawHUD()
             checkLevelEvents()
@@ -54,6 +54,8 @@ def main():
         while gb.gameOverMenu:
             showGameOverMenu()
             pygame.display.update()
+
+
 #######################################################################################################
 #sets up all pygame properties
 #used before game start
@@ -62,9 +64,11 @@ def setupPy():
     pygame.display.set_mode((0,0))
     pygame.display.set_caption("Bricks")
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
-    loadscores()
-def loadscores():
     gb.score = 0
+    loadscores()
+    addButton("startButton",gb.coordStartButton)
+    addButton("nametag",gb.coordNameTag)
+def loadscores():
     try:
         with open('punten.dat', 'rb') as file:
             gb.loadscore = pickle.load(file)
@@ -75,6 +79,8 @@ def loadscores():
             gb.highscore = pickle.load(file)
     except:
         gb.highscore = "'no highscore'"
+
+
 #Shows the Game Over Screen.
 #includes "Eindscore" & press space to play again
 def showGameOverMenu():
@@ -108,6 +114,7 @@ def getNextLevelStringList(lvl):
     nextLevelStringList = ("You completed LEVEL "+ str(lvl) + "!","proceed to next level, press SPACE..")
     return (nextLevelStringList)
 
+
 #Shows the "Completed level" screen
 #Ability to setup all variables needed in setupNextLevel()
 def showLevelChange():
@@ -134,23 +141,27 @@ def showMenu():
     for event in pygame.event.get():
         checkKeyQuit(event)
         if event.type == pygame.KEYDOWN:
-            if gb.inNameTagButton:
-                if(len(pygame.key.name(event.key)) == 1):
-                    gb.name = gb.name + pygame.key.name(event.key)
-                if event.key == 8:
-                    gb.name = gb.name[:-1]
+            inputname(event)
             if event.key == pygame.K_RETURN:
-                gb.showMenu = False
-                gb.levelsPlaying = True
-                gb.bricksRects,gb.bricks = createBricks(4,2,2)
+                startGameFromMenu()
         if event.type == pygame.MOUSEBUTTONDOWN:
             checkButtons()
+    if getButtonTriggerByName("startButton"):
+        startGameFromMenu()
     gb.mainSurface.blit(gb.bgMain,(0,0))
     gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
-    drawMultipleLines(gb.stringMenuList,gb.white,"freesansbold.ttf",18,gb.welkomLabel.get_width()-40,320)
+    gb.mainSurface.blit(gb.startButton,(gb.coordStartButton[0], gb.coordStartButton[1]))
+    drawMultipleLines(gb.stringMenuList,gb.white,"freesansbold.ttf",18,gb.welkomLabel.get_width()-40,250)
     highscore = gb.fontobjTITEL.render(str(gb.highscore),True,gb.white,None)
     gb.mainSurface.blit(highscore,(gb.WIDTH-highscore.get_width()-5,5))
     nameInput()
+
+
+def startGameFromMenu():
+    gb.showMenu = False
+    gb.levelsPlaying = True
+    gb.bricksRects,gb.bricks = createBricks(4,2,2)
+
 
 #generates the bricksets in levels
 #Returns 1 list of all bricks with ID's and 1 list with only Rectangles
@@ -422,6 +433,7 @@ def checkLevelEvents():
     if gb.keyDown:
         checkKeyHoldingEvents(gb.keyDown)
 
+
 #checks all keydownevents
 #includes Left,Right and Space
 def checkKeyDownEvents(event ):
@@ -460,7 +472,6 @@ def doKeyLeft():
 
 
 #sets the location of the bat if balll not served
-
 def doKeyRight():
     if gb.changeBat and gb.batLangRect[0] < gb.WIDTH-gb.batLangRect[2]:
         gb.batLangRect.topleft = (gb.batLangRect[0]+gb.KEYBOARD_SPEED,gb.playerY)
@@ -552,6 +563,7 @@ def checkBallBatCollide():
             gb.changeBat = False
         gb.scoreTemp = 0
 
+
 #checks if the upgrades collided with ball
 #goes to deletes the nessecary upgrade and upgrades the player
 def checkBallUpgradeCollide(upgrade):
@@ -604,12 +616,22 @@ def nameInput():
     #canvas
     pygame.draw.rect(gb.mainSurface,gb.white,gb.coordNameTag,2)
     #button of the nametag
-    addButton("nametag",gb.coordNameTag)
     if getButtonTriggerByName("nametag"):
         nameLabel = gb.fontobj.render(gb.name,True,gb.white)
         gb.mainSurface.blit(nameLabel,(gb.coordNameTag[0]+5,gb.coordNameTag[1]+8))
         drawCursor(nameLabel.get_width())
         gb.inNameTagButton = True
+
+
+def inputname(event):
+    if gb.inNameTagButton:
+        if(len(pygame.key.name(event.key)) == 1) and len(gb.name) <= 15:
+            gb.name = gb.name + pygame.key.name(event.key)
+        if event.key == 8: #return
+            gb.name = gb.name[:-1]
+        if event.key == 32: #space
+            gb.name = gb.name + " "
+
 
 def drawCursor(w):
     coord = gb.coordNameTag[0]+5+w,gb.coordNameTag[1]+22,7,2
@@ -628,10 +650,12 @@ def checkButtons():
     mouse = pygame.mouse.get_pos()
     mx,my = mouse[0],mouse[1]
     for button in gb.buttonList:
+        print(button,mx,my)
         bXmin,bXmax = button[1][0],button[1][0]+button[1][2]
         bYmin,bYmax = button[1][1],button[1][1]+button[1][3]
         if (mx >= int(bXmin) and mx <= int(bXmax)) and (my >= bYmin and my <= bYmax):
-            setButtonTrigger(button)
+            print(button)
+            setButtonTriggerByButton(button,True)
 
 
 #returns the trigger of the button searched by STRING:name
@@ -639,21 +663,32 @@ def getButtonTriggerByName(name):
     for button in gb.buttonList:
         try:
             i = gb.buttonList.index((name,button[1]))
-            return gb.buttonTriggers[0]
+            return gb.buttonTriggers[i]
             break
         except ValueError:
-            print("not in list")
+            gb.error = "valueERROR"
 
 
-def setButtonTrigger(button):
+def getButtonIDbyName(name):
+    for button in gb.buttonList:
+        try:
+            i = gb.buttonList.index((name,button[1]))
+            return i
+            break
+        except ValueError:
+            gb.error = "valueERROR"
+
+
+def setButtonTriggerByButton(button,state):
     i = gb.buttonList.index(button)
-    gb.buttonTriggers[i] = True
+    gb.buttonTriggers[i] = state
 
 
-def setButtonTriggerFalse(button):
-    i = gb.buttonList.index(button)
-    gb.buttonTriggers[i] = False
+def setButtonTriggerbyID(id,state):
+    gb.buttonTriggers[id] = state
 
 
+def setButtonTriggerByName(name,state):
+    gb.buttonTriggers[getButtonIDbyName(name)] = state
 if __name__ == '__main__':
     main()

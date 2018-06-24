@@ -29,7 +29,7 @@ scoreTemp = 0
 yBg = 0
 xBg = 0
 playerY = 540
-lives = 1
+lives = 3
 maxLives = 6
 scoreComboMultiplier = 2
 ballSpeed = 4
@@ -80,7 +80,8 @@ upgradeGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade2.png")).conv
 upgradeSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"upgrade_sleutel.png")).convert()
 heartSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"heart.png")).convert()
 heartRect = heartSprite.get_rect()# change topleft
-
+startButton = pygame.image.load(os.path.join(ASSETS_FOLDER,"start_button.png")).convert()
+startButtonRect = startButton.get_rect()
 bx, by = (int(WIDTH/2), playerY)
 sx, sy = (ballSpeed, ballSpeed)
 ballSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"ball.png"))
@@ -96,8 +97,10 @@ brickBlauw = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_blue_purple.png
 brickGeel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_yellow_black.png")) #ID = 2
 brickSleutel = pygame.image.load(os.path.join(ASSETS_FOLDER,"brick_sleutel.png"))   #ID = 3
 
-#coord nameTag
+#coords
 coordNameTag = ((WIDTH/2)-(nameTagWidth/2),150,nameTagWidth,nameTagHeight)
+coordStartButton = ((WIDTH/2) - startButtonRect[2]/2,200,startButtonRect[2],startButtonRect[3])
+error = ""
 #refresh level for string List
 def getLevel():
- return level
+    return level
