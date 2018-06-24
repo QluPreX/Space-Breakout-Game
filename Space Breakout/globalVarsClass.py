@@ -29,7 +29,7 @@ scoreTemp = 0
 yBg = 0
 xBg = 0
 playerY = 540
-lives = 3
+lives = 1
 maxLives = 6
 scoreComboMultiplier = 2
 ballSpeed = 4
@@ -38,6 +38,7 @@ nameTagWidth = 140
 nameTagHeight = 30
 #Strings
 loadscore = None
+highscore = ""
 keyDown = None
 name = ""
 cheatStringList = ("key 1:..increase combo score","key 2:..................delete steen","key 3:.................volgend level","key 4:....................extra leven","key 5:.............maak bal groot","key 6:........maak player groot","key 7:........increase ball speed","key ENTER:..........Keys Menu")

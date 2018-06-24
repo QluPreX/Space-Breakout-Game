@@ -9,6 +9,7 @@ def main():
     while gb.gameOn:
         pygame.mixer.music.play(-1)
         pygame.mouse.set_visible(1)
+        loadscores()
         while gb.showMenu:
             showMenu()
             pygame.display.update()
@@ -61,14 +62,19 @@ def setupPy():
     pygame.display.set_mode((0,0))
     pygame.display.set_caption("Bricks")
     pygame.mixer.music.load(os.path.join(gb.ASSETS_FOLDER,"8-bit-music-loop.wav"))
+    loadscores()
+def loadscores():
     gb.score = 0
     try:
-        with open('score.dat', 'rb') as file:
+        with open('punten.dat', 'rb') as file:
             gb.loadscore = pickle.load(file)
     except:
         gb.loadscore = 0
-
-
+    try:
+        with open('highscore.dat','rb') as file:
+            gb.highscore = pickle.load(file)
+    except:
+        gb.highscore = "'no highscore'"
 #Shows the Game Over Screen.
 #includes "Eindscore" & press space to play again
 def showGameOverMenu():
@@ -76,6 +82,9 @@ def showGameOverMenu():
     if gb.loadscore < gb.score:
         with open('score.dat', 'wb') as file:
             pickle.dump(gb.score, file)
+        with open('highscore.dat', 'wb') as file:
+            str_temp = str(gb.name + ": " + str(gb.score))
+            pickle.dump(str_temp,file)
     gb.mainSurface.blit(gb.gameOverBg,(0,0))
     gb.mainSurface.blit(eindScore,(400-int(eindScore.get_width()/2),290))
     drawMultipleLines(gb.gameOverStringList,gb.white,"freesansbold.ttf",22,270,50)
@@ -88,6 +97,9 @@ def showGameOverMenu():
                 gb.gameOn = False
                 pygame.quit()
                 sys.exit()
+            if event.key == pygame.K_m:
+                gb.showMenu = True
+                gb.gameOverMenu = False
 
 
 #gives the string needed for next level
@@ -125,7 +137,8 @@ def showMenu():
             if gb.inNameTagButton:
                 if(len(pygame.key.name(event.key)) == 1):
                     gb.name = gb.name + pygame.key.name(event.key)
-                    print(gb.name)
+                if event.key == 8:
+                    gb.name = gb.name[:-1]
             if event.key == pygame.K_RETURN:
                 gb.showMenu = False
                 gb.levelsPlaying = True
@@ -135,7 +148,7 @@ def showMenu():
     gb.mainSurface.blit(gb.bgMain,(0,0))
     gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
     drawMultipleLines(gb.stringMenuList,gb.white,"freesansbold.ttf",18,gb.welkomLabel.get_width()-40,320)
-    highscore = gb.fontobj.render("Your highscore: "+ str(gb.loadscore),True,gb.white,None)
+    highscore = gb.fontobjTITEL.render(str(gb.highscore),True,gb.white,None)
     gb.mainSurface.blit(highscore,(gb.WIDTH-highscore.get_width()-5,5))
     nameInput()
 
@@ -247,6 +260,8 @@ def brickHit(brickHitIndex):
     else:
         gb.sy *= -1
     del(gb.bricksRects[brickHitIndex])
+
+
 #draws the Head-Up Display
 #Hud includes: Lives, score, comboscore and levelindicator
 def drawHUD():

@@ -1,2 +1,2 @@
 
-                gb.name = gb.name + str(event.key)
+        with open('highscore.dat','rb') as file:
