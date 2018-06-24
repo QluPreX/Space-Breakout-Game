@@ -20,6 +20,7 @@ def main():
             setDynamicBackground()
             drawHUD()
             checkLevelEvents()
+            pauseMenu()
             if gb.changeBat:
                 gb.mainSurface.blit(gb.batLangSprite, gb.batLangRect)
             if not gb.changeBat:
@@ -448,6 +449,8 @@ def checkKeyDownEvents(event ):
     if event.key == pygame.K_SPACE:
         if not gb.ballServed:
             gb.ballServed = True
+    if event.key == pygame.K_ESCAPE:
+                    gb.pause = True
 
 
 #checks all keyholding events
@@ -690,5 +693,17 @@ def setButtonTriggerbyID(id,state):
 
 def setButtonTriggerByName(name,state):
     gb.buttonTriggers[getButtonIDbyName(name)] = state
+
+
+def pauseMenu():
+    while gb.pause:
+        gb.mainSurface.blit(gb.pauseBg,(0,0))
+        for event in pygame.event.get():
+            checkKeyQuit(event)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    gb.pause = False
+        pygame.display.update()
+        gb.FPSCLOCK.tick(30)
 if __name__ == '__main__':
     main()

@@ -15,6 +15,7 @@ gameOn = True
 levelsPlaying = False
 gameOverMenu = False #default False
 changeLevel = False
+pause = False
 showCheatKeys = False
 ballServed = False
 changeBall = False
@@ -61,6 +62,7 @@ fontobjCOMBO = pygame.font.Font("freesansbold.ttf",30)
 
 #labels
 welkomLabel = fontobjTITEL.render('SPACE BREAKOUT!', True, white,black)
+pauseLabel = fontobjTITEL.render("PAUSE",True,white,None)
 #adding sounds
 batBotsingSound = pygame.mixer.Sound(os.path.join(ASSETS_FOLDER,"drop-a-brick.wav"))
 #sprites & achtergrond(en)
@@ -71,6 +73,8 @@ bg2 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg2.jpg")).convert()
 bg3 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg3.jpg")).convert()
 bg4 = pygame.image.load(os.path.join(ASSETS_FOLDER,"bg4.jpg")).convert()
 nextLevelBg = pygame.image.load(os.path.join(ASSETS_FOLDER,"nextLevelBg.jpg")).convert()
+pauseBg = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS_FOLDER,"bg_pause.png")).convert(), (WIDTH,HEIGHT))
+
 #dynamische X en Y voor bewegende achtergronden
 # pallet initialiseren
 batSprite = pygame.image.load(os.path.join(ASSETS_FOLDER,"bat.png")).convert()
