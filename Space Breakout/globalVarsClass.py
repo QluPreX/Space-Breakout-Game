@@ -42,7 +42,7 @@ highscore = ""
 keyDown = None
 name = ""
 cheatStringList = ("key 1:..increase combo score","key 2:..................delete steen","key 3:.................volgend level","key 4:....................extra leven","key 5:.............maak bal groot","key 6:........maak player groot","key 7:........increase ball speed","key ENTER:..........Keys Menu")
-stringMenuList = ('Gebruik ARROW KEYS of je MUIS              ','Druk SPATIE of op je muisknop voor de ball te starten!','Press ENTER to continue...                 ')
+stringMenuList = ('Gebruik ARROW KEYS of je MUIS              ','Druk SPATIE of op je muisknop voor de ball te starten!')
 gameOverStringList = ("Druk SPATIE voor opnieuw te spelen","Druk ESC voor af te sluiten")
 #arrays
 upgradeRectList = [] # (Rect, ID)
