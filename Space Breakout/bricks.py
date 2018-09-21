@@ -112,8 +112,7 @@ def showGameOverMenu():
 #gives the string needed for next level
 #is not in class, str(lvl) will not change if it was
 def getNextLevelStringList(lvl):
-    nextLevelStringList = ("You completed LEVEL "+ str(lvl) + "!","proceed to next level, press SPACE..")
-    return (nextLevelStringList)
+    return ("You completed LEVEL "+ str(lvl) + "!","proceed to next level, press SPACE..")
 
 
 #Shows the "Completed level" screen
@@ -148,7 +147,10 @@ def showMenu():
         if event.type == pygame.MOUSEBUTTONDOWN:
             checkButtons()
     if getButtonTriggerByName("startButton"):
-        startGameFromMenu()
+        if gb.errorEmptyName:
+            startGameFromMenu()
+    if gb.errorEmptyName:
+        showMessage("test message 1 2 3", (200,300,10,5))
     gb.mainSurface.blit(gb.bgMain,(0,0))
     gb.mainSurface.blit(gb.welkomLabel,(400-int(gb.welkomLabel.get_width()/2),50))
     gb.mainSurface.blit(gb.startButton,(gb.coordStartButton[0], gb.coordStartButton[1]))
@@ -275,7 +277,7 @@ def brickHit(brickHitIndex):
 
 
 #draws the Head-Up Display
-#Hud includes: Lives, score, comboscore and levelindicator
+#Hud includes: Lives, score, combo-score and levelindicator
 def drawHUD():
     for i in range(gb.lives): #3 levens = 0,1,2
         x,y = ((gb.heartRect[2]*i)+5,5)
@@ -612,6 +614,13 @@ def checkKeyQuit(event):
         sys.exit()
 
 
+#shows a message with the desired size
+def showMessage(message, coordxy):
+    messageLabel = gb.fontobj.render(message,True,gb.white)
+    pygame.draw.rect(gb.mainSurface,gb.white,coordxy)
+    pygame.draw.rect(gb.mainSurface,gb.black,coordxy, 2)
+    gb.mainSurface.blit(messageLabel,(coordxy[0]+messageLabel.get_width(),coordxy[2]+messageLabel.get_height()))
+
 #De naambalk, hier zet je je naam in
 def nameInput():
     #input
@@ -653,11 +662,9 @@ def checkButtons():
     mouse = pygame.mouse.get_pos()
     mx,my = mouse[0],mouse[1]
     for button in gb.buttonList:
-        print(button,mx,my)
         bXmin,bXmax = button[1][0],button[1][0]+button[1][2]
         bYmin,bYmax = button[1][1],button[1][1]+button[1][3]
         if (mx >= int(bXmin) and mx <= int(bXmax)) and (my >= bYmin and my <= bYmax):
-            print(button)
             setButtonTriggerByButton(button,True)
 
 
@@ -672,6 +679,7 @@ def getButtonTriggerByName(name):
             gb.error = "valueERROR"
 
 
+#returns the ID of the button by searching by STRING:name
 def getButtonIDbyName(name):
     for button in gb.buttonList:
         try:
@@ -682,19 +690,22 @@ def getButtonIDbyName(name):
             gb.error = "valueERROR"
 
 
+#sets the buttons trigger state to the given state by searching by buttonNr
 def setButtonTriggerByButton(button,state):
     i = gb.buttonList.index(button)
     gb.buttonTriggers[i] = state
 
 
+#sets the buttons trigger state to the given state by searching by buttonID
 def setButtonTriggerbyID(id,state):
     gb.buttonTriggers[id] = state
 
-
+#sets the buttons trigger state to the given state by searching by Name
 def setButtonTriggerByName(name,state):
     gb.buttonTriggers[getButtonIDbyName(name)] = state
 
 
+#shows the pause menu; this is a game state.
 def pauseMenu():
     while gb.pause:
         gb.mainSurface.blit(gb.pauseBg,(0,0))
@@ -705,5 +716,6 @@ def pauseMenu():
                     gb.pause = False
         pygame.display.update()
         gb.FPSCLOCK.tick(30)
+
 if __name__ == '__main__':
     main()

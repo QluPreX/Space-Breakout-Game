@@ -1,6 +1,6 @@
 Space-Breakout-Game
 V1.5
-By Karel De Smet (last updated: 09/06/2018)
+By Karel De Smet (last updated: 20/09/2018)
 ---------------------
 
 How to play:
@@ -20,3 +20,7 @@ unzip & Open "bricks.exe"
 
 
 Enjoy
+
+----------------------
+Develop notes:
+line 151: infinite loop when message is showed!

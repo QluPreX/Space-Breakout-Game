@@ -20,6 +20,7 @@ showCheatKeys = False
 ballServed = False
 changeBall = False
 changeBat = False
+errorEmptyName = False  
         #buttons
 inNameTagButton = False
 
