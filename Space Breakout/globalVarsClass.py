@@ -5,8 +5,8 @@ from pygame import *
 WIDTH = 800
 HEIGHT = 600
 KEYBOARD_SPEED = 20
-DEVELOPER_TOOLS = True #verander dit voor Cheatkeys te gebruiken
-SCORE_FOR_EXTRA_LIFE = 20
+DEVELOPER_TOOLS = False #verander dit voor Cheatkeys te gebruiken
+SCORE_FOR_EXTRA_LIFE = 40
 GAME_FOLDER = os.path.dirname(__file__)
 ASSETS_FOLDER = os.path.join(GAME_FOLDER,"Assets")
 #dynamsche variabelen
@@ -34,8 +34,8 @@ playerY = 540
 lives = 3
 maxLives = 6
 scoreComboMultiplier = 2
-ballSpeed = 4
-ballMaxSpeed = 10
+ballSpeed = 6
+ballMaxSpeed = 16
 nameTagWidth = 140
 nameTagHeight = 30
 #Strings
