@@ -3,7 +3,7 @@ V1.5
 By Karel De Smet (last updated: 20/09/2018)
 ---------------------
 
-## Discontinued
+Discontinued
 
 How to play:
 ------------
