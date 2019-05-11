@@ -261,13 +261,13 @@ def brickHit(brickHitIndex):
     for b in gb.bricks:
         if b[-1] == 1 and b[-2]==hb:
             upX,upY = hb[0],hb[1]
-            gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),1))
+            gb.upgradeRectList.append(( Rect(upX+12, (upY+int((hb.height/2)+12)),24,24),1))
         elif b[-1] == 2 and b[-2]==hb:
             upX,upY = hb[0],hb[1]
-            gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),2))
+            gb.upgradeRectList.append(( Rect(upX+12, (upY+int((hb.height/2)+12)),24,24),2))
         elif b[-1] == 3 and b[-2]==hb:
             upX,upY = hb[0],hb[1]
-            gb.upgradeRectList.append(( Rect(upX+8, (upY+int((hb.height/2)+8)),16,16),3))
+            gb.upgradeRectList.append(( Rect(upX+12, (upY+int((hb.height/2)+12)),24,24),3))
     mx = gb.bx + 4
     if mx > hb.x + hb.width or mx < hb.x:
         gb.sx *= -1
@@ -506,7 +506,7 @@ def drawUpgrades():
             gb.mainSurface.blit(gb.upgradeGeel,(upgrade[-2].topleft))
         elif(upgrade[-1]==3):
             gb.mainSurface.blit(gb.upgradeSleutel,(upgrade[-2].topleft))
-        upgrade[-2].topleft = (upgrade[-2][0],upgrade[-2][1]+gb.ballSpeed-2) #upgrades naar beneden laten vallen, speed = 2
+        upgrade[-2].topleft = (upgrade[-2][0],upgrade[-2][1]-(gb.ballSpeed/2) +1 ) #upgrades naar beneden laten vallen, speed = 2
         checkBallUpgradeCollide(upgrade)
 
 #check for the ball collides

@@ -5,7 +5,7 @@ from pygame import *
 WIDTH = 800
 HEIGHT = 600
 KEYBOARD_SPEED = 20
-DEVELOPER_TOOLS = False #verander dit voor Cheatkeys te gebruiken
+DEVELOPER_TOOLS = True #verander dit voor Cheatkeys te gebruiken
 SCORE_FOR_EXTRA_LIFE = 40
 GAME_FOLDER = os.path.dirname(__file__)
 ASSETS_FOLDER = os.path.join(GAME_FOLDER,"Assets")
@@ -20,7 +20,7 @@ showCheatKeys = False
 ballServed = False
 changeBall = False
 changeBat = False
-errorEmptyName = False  
+errorEmptyName = False
         #buttons
 inNameTagButton = False
 
