@@ -1,6 +1,8 @@
 Space-Breakout-Game
 V1.5
 
+[![Run on Repl.it](https://repl.it/badge/github/snakehead007/Space-Breakout-Game)](https://repl.it/github/snakehead007/Space-Breakout-Game)
+
 Discontinued
 
 How to play:
